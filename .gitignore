@@ -1,0 +1,21 @@
+echo. > .gitignore
+```
+
+Then open the `.gitignore` file in VS Code and **paste this inside it:**
+```
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.sqlite3
