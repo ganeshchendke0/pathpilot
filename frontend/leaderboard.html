@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leaderboard — PathPilot</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    .lb-layout { max-width: 780px; margin: 0 auto; padding: 40px 28px; }
+    .lb-hero   { text-align: center; margin-bottom: 36px; }
+    .lb-hero h2 { margin-bottom: 8px; }
+
+    .my-rank-banner {
+      background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(34,211,238,0.06));
+      border: 1px solid rgba(99,102,241,0.2); border-radius: var(--r-xl);
+      padding: 20px 28px; display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px;
+    }
+    .mrb-label { font-size: 0.85rem; color: var(--text-2); }
+    .mrb-rank  { font-family: var(--font-display); font-size: 2rem; font-weight: 700; }
+    .mrb-rank.grad { background: var(--grad-primary); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+    .board-tabs { display: flex; gap: 6px; background: var(--surface-2); border-radius: var(--r-md); padding: 4px; margin-bottom: 20px; }
+    .board-tab-btn {
+      flex: 1; padding: 10px; border: none; border-radius: var(--r-sm);
+      background: transparent; color: var(--text-2);
+      font-family: var(--font-display); font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .board-tab-btn.active { background: var(--surface-3); color: var(--text); }
+
+    .board-row {
+      display: flex; align-items: center; gap: 16px;
+      padding: 14px 18px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--r-lg);
+      margin-bottom: 8px; transition: all 0.2s;
+    }
+    .board-row:hover  { border-color: var(--border-2); transform: translateX(4px); }
+    .board-row.is-me  { border-color: rgba(99,102,241,0.35); background: var(--indigo-soft); }
+    .board-rank  { font-family: var(--font-display); font-size: 1.15rem; width: 32px; text-align: center; }
+    .board-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--grad-primary); display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; flex-shrink: 0;
+    }
+    .board-info  { flex: 1; min-width: 0; }
+    .board-score { text-align: right; }
+    .board-score .fw-700 { font-family: var(--font-display); font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><div class="nav-brand-icon">🧭</div> PathPilot</div>
+    <div class="nav-links">
+      <a href="dashboard.html"   class="nav-link">Dashboard</a>
+      <a href="leaderboard.html" class="nav-link active">Leaderboard</a>
+      <a href="career.html"      class="nav-link hide-mobile">Careers</a>
+      <button id="logout-btn"    class="btn btn-ghost btn-sm">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="lb-layout">
+      <div class="lb-hero">
+        <span class="badge badge-amber" style="margin-bottom:14px">🏆 Live Leaderboard</span>
+        <h2>Who's <span class="grad-text">studying hardest</span>?</h2>
+        <p class="text-muted" style="margin-top:8px">Rankings update based on focus sessions and XP earned</p>
+      </div>
+
+      <div class="my-rank-banner">
+        <div>
+          <div class="mrb-label">Your Global Rank</div>
+          <div class="mrb-rank grad" id="my-rank">—</div>
+        </div>
+        <div style="text-align:right">
+          <div class="mrb-label">Keep studying to climb!</div>
+          <a href="focus.html" class="btn btn-primary btn-sm" style="margin-top:8px">🍅 Start Focus →</a>
+        </div>
+      </div>
+
+      <div class="board-tabs">
+        <button class="board-tab-btn active" data-panel="weekly-board-wrap">📅 This Week</button>
+        <button class="board-tab-btn"        data-panel="alltime-board-wrap">⚡ All Time XP</button>
+      </div>
+
+      <div id="weekly-board-wrap">
+        <div id="weekly-board"><p class="text-muted text-small">Loading…</p></div>
+      </div>
+      <div id="alltime-board-wrap" style="display:none">
+        <div id="alltime-board"><p class="text-muted text-small">Loading…</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/leaderboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — PathPilot</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    .dash-layout { display: grid; grid-template-columns: 230px 1fr; min-height: calc(100vh - 68px); }
+
+    .sidebar {
+      background: var(--surface); border-right: 1px solid var(--border);
+      padding: 20px 12px; display: flex; flex-direction: column; gap: 2px;
+      position: sticky; top: 68px; height: calc(100vh - 68px); overflow-y: auto;
+    }
+    .sidebar-sep   { height: 1px; background: var(--border); margin: 12px 4px; }
+    .sidebar-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); padding: 4px 12px 6px; }
+    .sidebar-link  {
+      display: flex; align-items: center; gap: 11px;
+      padding: 10px 12px; border-radius: var(--r-md);
+      color: var(--text-2); font-size: 0.88rem; font-weight: 500;
+      cursor: pointer; transition: all 0.18s; text-decoration: none;
+    }
+    .sidebar-link:hover  { color: var(--text); background: var(--surface-2); }
+    .sidebar-link.active { color: var(--text); background: var(--surface-3); }
+    .sl-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+
+    .dash-main { padding: 32px; display: flex; flex-direction: column; gap: 28px; background: var(--bg); }
+
+    .welcome-banner {
+      background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(34,211,238,0.06) 100%);
+      border: 1px solid rgba(99,102,241,0.2); border-radius: var(--r-xl);
+      padding: 28px 32px; display: flex; justify-content: space-between; align-items: center;
+      position: relative; overflow: hidden;
+    }
+    .welcome-banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 80% 50%, rgba(99,102,241,0.08) 0%, transparent 70%); }
+    .welcome-banner > * { position: relative; }
+    .wb-greeting { font-size: 0.85rem; color: var(--indigo); font-weight: 600; letter-spacing: 0.02em; margin-bottom: 4px; }
+    .wb-name     { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; margin-bottom: 6px; }
+    .wb-meta     { display: flex; gap: 16px; flex-wrap: wrap; }
+    .wb-meta-item{ font-size: 0.85rem; color: var(--text-2); font-weight: 500; }
+    .wb-emoji    { font-size: 4rem; opacity: 0.6; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+    .dash-cols     { display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
+    .dash-col-main { display: flex; flex-direction: column; gap: 24px; }
+    .dash-col-side { display: flex; flex-direction: column; gap: 24px; }
+
+    .goals-grid    { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; }
+
+    .goal-card       { cursor: pointer; }
+    .goal-card-top   { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .goal-meta-row   { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .goal-title      { font-family: var(--font-display); font-size: 1rem; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+    .goal-desc       { color: var(--text-2); }
+    .goal-cat-icon   { font-size: 1.8rem; flex-shrink: 0; }
+    .goal-progress-area { margin: 8px 0 4px; }
+    .goal-footer     { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+    .goal-actions    { display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s; }
+    .goal-card:hover .goal-actions { opacity: 1; }
+
+    .report-card     { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 24px; }
+    .report-grid     { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin: 16px 0; }
+    .report-stat     { background: var(--surface-2); border-radius: var(--r-md); padding: 12px 16px; }
+    .report-stat-val { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; }
+    .report-stat-lbl { font-size: 0.78rem; color: var(--text-2); margin-top: 2px; }
+    .report-summary  { font-size: 0.88rem; line-height: 1.65; color: var(--text-2); padding: 14px 16px; background: var(--surface-2); border-radius: var(--r-md); }
+
+    .session-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface-2); border-radius: var(--r-md); }
+    .session-dur { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--indigo); }
+
+    .notif-wrapper  { position: relative; }
+    .notif-dropdown {
+      display: none; position: absolute; top: 46px; right: 0;
+      background: var(--surface); border: 1px solid var(--border-2);
+      border-radius: var(--r-xl); width: 300px;
+      box-shadow: var(--shadow-lg); z-index: 200; overflow: hidden;
+    }
+    .notif-dropdown.open { display: block; }
+    .notif-item  { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 3px; }
+    .notif-msg   { font-size: 0.82rem; color: var(--text-2); }
+    .notif-time  { font-size: 0.75rem; margin-top: 4px; }
+
+    .quick-actions-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .quick-action-btn {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--r-lg); padding: 18px 14px; text-align: center;
+      cursor: pointer; transition: all 0.2s var(--ease-out); text-decoration: none;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .quick-action-btn:hover { border-color: rgba(99,102,241,0.4); background: var(--surface-3); transform: translateY(-2px); }
+    .qa-icon  { font-size: 1.6rem; }
+    .qa-label { font-size: 0.8rem; font-weight: 600; color: var(--text-2); }
+
+    @media (max-width: 1024px) { .dash-cols { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 768px)  { .dash-layout { grid-template-columns: 1fr; } .sidebar { display: none; } .dash-main { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><div class="nav-brand-icon">🧭</div> PathPilot</div>
+    <div class="nav-links">
+      <a href="dashboard.html"   class="nav-link active">Dashboard</a>
+      <a href="career.html"      class="nav-link hide-mobile">Careers</a>
+      <a href="focus.html"       class="nav-link hide-mobile">Focus</a>
+      <a href="leaderboard.html" class="nav-link hide-mobile">Board</a>
+      <div class="notif-wrapper">
+        <button class="btn btn-ghost btn-icon notif-btn" id="notif-btn" title="Notifications">🔔<span class="notif-dot"></span></button>
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div id="notif-panel"><div class="notif-item"><p class="text-small text-muted">Loading…</p></div></div>
+        </div>
+      </div>
+      <div style="font-size:.82rem;color:var(--text-2)" id="nav-xp"></div>
+      <button id="logout-btn" class="btn btn-ghost btn-sm">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="dash-layout">
+      <aside class="sidebar">
+        <a href="dashboard.html"   class="sidebar-link active"><span class="sl-icon">🏠</span> Overview</a>
+        <a href="career.html"      class="sidebar-link"><span class="sl-icon">🧭</span> Careers</a>
+        <a href="roadmap.html"     class="sidebar-link"><span class="sl-icon">🗺️</span> My Roadmap</a>
+        <div class="sidebar-sep"></div>
+        <div class="sidebar-label">Study</div>
+        <a href="focus.html"       class="sidebar-link"><span class="sl-icon">🍅</span> Focus Timer</a>
+        <div class="sidebar-sep"></div>
+        <div class="sidebar-label">Wellbeing</div>
+        <a href="wellness.html"    class="sidebar-link"><span class="sl-icon">🧘</span> Wellness</a>
+        <a href="leaderboard.html" class="sidebar-link"><span class="sl-icon">🏆</span> Leaderboard</a>
+        <div style="margin-top:auto">
+          <div class="sidebar-sep"></div>
+          <div class="sidebar-link" onclick="Auth.logout()"><span class="sl-icon">🚪</span> Sign Out</div>
+        </div>
+      </aside>
+
+      <main class="dash-main">
+        <div class="welcome-banner">
+          <div>
+            <div class="wb-greeting" id="greeting">Good morning!</div>
+            <div class="wb-name" id="welcome-name">Student</div>
+            <div class="wb-meta">
+              <span class="wb-meta-item" id="user-xp">⚡ 0 XP</span>
+              <span class="wb-meta-item" id="user-streak">🔥 0 day streak</span>
+            </div>
+          </div>
+          <div class="wb-emoji hide-mobile">🧭</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Goals</div></div>
+          <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-num" id="stat-completed">0</div><div class="stat-label">Completed</div></div>
+          <div class="stat-card"><div class="stat-icon">⟳</div><div class="stat-num" id="stat-inprog">0</div><div class="stat-label">In Progress</div></div>
+          <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-num" id="stat-hours">0</div><div class="stat-label">Study Hours</div></div>
+        </div>
+
+        <div class="dash-cols">
+          <div class="dash-col-main">
+            <div>
+              <div class="section-header">
+                <div class="section-title">🎯 My Goals</div>
+                <button class="btn btn-primary btn-sm" id="add-goal-btn">+ Add Goal</button>
+              </div>
+              <div class="goals-grid" id="goals-grid">
+                <div class="empty-state" style="grid-column:1/-1"><div class="empty-emoji">⏳</div><p>Loading…</p></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-header"><div class="section-title">⚡ Quick Actions</div></div>
+              <div class="quick-actions-grid">
+                <a href="focus.html"       class="quick-action-btn"><div class="qa-icon">🍅</div><div class="qa-label">Start Focus</div></a>
+                <a href="career.html"      class="quick-action-btn"><div class="qa-icon">🧭</div><div class="qa-label">Explore Careers</div></a>
+                <a href="wellness.html"    class="quick-action-btn"><div class="qa-icon">🧘</div><div class="qa-label">Log Mood</div></a>
+                <a href="roadmap.html"     class="quick-action-btn"><div class="qa-icon">🗺️</div><div class="qa-label">My Roadmap</div></a>
+                <a href="leaderboard.html" class="quick-action-btn"><div class="qa-icon">🏆</div><div class="qa-label">Leaderboard</div></a>
+                <div class="quick-action-btn" onclick="openAddGoal()"><div class="qa-icon">➕</div><div class="qa-label">New Goal</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-col-side">
+            <div class="report-card">
+              <div class="section-title" style="margin-bottom:4px">📊 This Week</div>
+              <p class="text-small text-muted" style="margin-bottom:12px">Your personalized summary</p>
+              <div class="report-grid">
+                <div class="report-stat"><div class="report-stat-val" id="report-focus">—</div><div class="report-stat-lbl">Focus Time</div></div>
+                <div class="report-stat"><div class="report-stat-val" id="report-goals">—</div><div class="report-stat-lbl">Goals Done</div></div>
+                <div class="report-stat"><div class="report-stat-val" id="report-mood">—</div><div class="report-stat-lbl">Avg Mood</div></div>
+                <div class="report-stat"><div class="report-stat-val" id="report-streak">—</div><div class="report-stat-lbl">Streak</div></div>
+              </div>
+              <div class="report-summary" id="weekly-summary">Loading your report…</div>
+            </div>
+
+            <div class="card">
+              <div class="section-header" style="margin-bottom:14px">
+                <div class="section-title">🍅 Recent Sessions</div>
+                <a href="focus.html" class="btn btn-ghost btn-sm">Start →</a>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px" id="recent-sessions">
+                <p class="text-small text-muted">Loading…</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="goal-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="modal-title">New Goal</div>
+        <button class="modal-close">✕</button>
+      </div>
+      <form id="goal-form" style="display:flex;flex-direction:column;gap:16px">
+        <div class="form-group">
+          <label class="form-label">Title *</label>
+          <input id="g-title" type="text" class="form-input" placeholder="What do you want to achieve?" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea id="g-desc" class="form-input" placeholder="Add details (optional)" rows="2"></textarea>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="g-category" class="form-input">
+              <option value="academic">📚 Academic</option>
+              <option value="career">💼 Career</option>
+              <option value="personal">🌱 Personal</option>
+              <option value="skill">🛠️ Skill</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select id="g-priority" class="form-input">
+              <option value="low">↓ Low</option>
+              <option value="medium" selected>→ Medium</option>
+              <option value="high">↑ High</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Deadline</label>
+          <input id="g-deadline" type="date" class="form-input"/>
+        </div>
+        <div class="grid-2" id="edit-only-row" style="display:none">
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="g-status" class="form-input">
+              <option value="not_started">○ Not Started</option>
+              <option value="in_progress">⟳ In Progress</option>
+              <option value="completed">✓ Completed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Progress (%)</label>
+            <input id="g-progress" type="number" class="form-input" min="0" max="100" value="0"/>
+          </div>
+        </div>
+        <div class="flex gap-sm" style="margin-top:4px">
+          <button type="submit" class="btn btn-primary w-full" id="submit-goal-btn">Create Goal</button>
+          <button type="button" class="btn btn-ghost" onclick="closeModal('goal-modal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

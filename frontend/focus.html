@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Focus Timer — PathPilot</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    .focus-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 32px;
+      padding: 40px 32px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .timer-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 40px;
+      display: flex; flex-direction: column; align-items: center; gap: 24px;
+    }
+
+    .mode-tabs {
+      display: flex; gap: 8px; background: var(--surface-2);
+      border-radius: var(--r-full); padding: 4px;
+    }
+    .mode-btn {
+      padding: 8px 20px; border: none; border-radius: var(--r-full);
+      background: transparent; color: var(--text-2);
+      font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .mode-btn.active { background: var(--surface-3); color: var(--text); }
+
+    .timer-ring-wrap { position: relative; width: 260px; height: 260px; }
+    .timer-svg       { transform: rotate(-90deg); }
+    .timer-ring-bg   { fill: none; stroke: var(--surface-3); stroke-width: 6; }
+    #timer-ring      { fill: none; stroke: var(--indigo); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.9s linear; }
+    .timer-display   {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    #timer-display {
+      font-family: var(--font-display); font-size: 3.5rem; font-weight: 700;
+      letter-spacing: -0.04em;
+      background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .timer-mode-label { font-size: 0.85rem; color: var(--text-2); margin-top: 4px; }
+
+    .timer-controls { display: flex; gap: 12px; align-items: center; }
+    #start-btn      { min-width: 160px; }
+
+    .subject-wrap       { width: 100%; }
+    .subject-wrap label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+
+    .session-chips { display: flex; gap: 6px; }
+    .session-chip  { width: 14px; height: 14px; border-radius: 50%; background: var(--surface-3); transition: background 0.3s; }
+    .session-chip.done { background: var(--indigo); }
+
+    .focus-side { display: flex; flex-direction: column; gap: 20px; }
+
+    .focus-stats-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 24px; }
+    .focus-stat-row   { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .focus-stat-row:last-child { border-bottom: none; }
+    .fsr-label { font-size: 0.85rem; color: var(--text-2); }
+    .fsr-val   { font-family: var(--font-display); font-weight: 700; }
+
+    .chart-card   { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 24px; }
+    #weekly-chart { display: flex; gap: 10px; align-items: flex-end; height: 100px; margin-top: 16px; }
+    .chart-col    { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+    .chart-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+    .chart-bar    { width: 100%; border-radius: 4px 4px 0 0; background: var(--surface-3); min-height: 4px; transition: height 0.5s var(--ease-out); }
+    .chart-bar.today { background: var(--grad-primary); }
+    .chart-label  { font-size: 0.72rem; color: var(--text-3); }
+    .chart-mins   { font-size: 0.68rem; color: var(--text-3); min-height: 12px; }
+
+    .guide-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 24px; }
+    .guide-step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .guide-step:last-child { border-bottom: none; }
+    .guide-step-num  { width: 24px; height: 24px; border-radius: 50%; background: var(--indigo-soft); color: #a5b4fc; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .guide-step-text { font-size: 0.85rem; color: var(--text-2); line-height: 1.5; }
+
+    @media (max-width: 900px) { .focus-layout { grid-template-columns: 1fr; padding: 24px 20px; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><div class="nav-brand-icon">🧭</div> PathPilot</div>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="focus.html"     class="nav-link active">Focus</a>
+      <a href="career.html"    class="nav-link hide-mobile">Careers</a>
+      <a href="wellness.html"  class="nav-link hide-mobile">Wellness</a>
+      <button id="logout-btn"  class="btn btn-ghost btn-sm">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="focus-layout">
+      <div class="timer-card">
+        <h2 style="font-size:1.4rem">🍅 Pomodoro Timer</h2>
+
+        <div class="mode-tabs">
+          <button class="mode-btn active" data-mode="pomodoro">Focus 25m</button>
+          <button class="mode-btn" data-mode="short">Break 5m</button>
+          <button class="mode-btn" data-mode="long">Long 15m</button>
+        </div>
+
+        <div class="timer-ring-wrap">
+          <svg class="timer-svg" width="260" height="260" viewBox="0 0 260 260">
+            <circle class="timer-ring-bg" cx="130" cy="130" r="110"/>
+            <circle id="timer-ring" cx="130" cy="130" r="110" stroke-dasharray="691" stroke-dashoffset="691"/>
+          </svg>
+          <div class="timer-display">
+            <div id="timer-display">25:00</div>
+            <div class="timer-mode-label">Focus Session</div>
+          </div>
+        </div>
+
+        <div class="subject-wrap">
+          <label>What are you studying?</label>
+          <input id="subject-input" type="text" class="form-input" placeholder="e.g. Data Structures, React..." list="goal-suggestions"/>
+          <datalist id="goal-suggestions"></datalist>
+        </div>
+
+        <div class="timer-controls">
+          <button id="start-btn" class="btn btn-ghost">▶ Start</button>
+          <button id="reset-btn" class="btn btn-ghost btn-icon" title="Reset">↺</button>
+        </div>
+
+        <div>
+          <p class="text-small text-muted text-center" style="margin-bottom:10px">Sessions completed: <strong id="sessions-count">0</strong> / 4</p>
+          <div class="session-chips">
+            <div class="session-chip" id="chip-1"></div>
+            <div class="session-chip" id="chip-2"></div>
+            <div class="session-chip" id="chip-3"></div>
+            <div class="session-chip" id="chip-4"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="focus-side">
+        <div class="focus-stats-card">
+          <div class="section-title">📈 Your Stats</div>
+          <div style="margin-top:14px">
+            <div class="focus-stat-row">
+              <span class="fsr-label">⏱ Total Hours</span>
+              <span class="fsr-val grad-text" id="stat-total-hours">0</span>
+            </div>
+            <div class="focus-stat-row">
+              <span class="fsr-label">🔥 Day Streak</span>
+              <span class="fsr-val" id="stat-streak">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="section-title">📅 This Week</div>
+          <div id="weekly-chart"><p class="text-small text-muted">Loading…</p></div>
+        </div>
+
+        <div class="guide-card">
+          <div class="section-title" style="margin-bottom:14px">📖 How Pomodoro Works</div>
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-text">Choose what to study and set the topic above</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-text">Work with full focus for 25 minutes — no distractions</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-text">Take a 5-minute break when the timer rings</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-text">After 4 sessions, take a 15-minute long break</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/focus.js"></script>
+</body>
+</html>

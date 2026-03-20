@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wellness — PathPilot</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    .wellness-layout { display: grid; grid-template-columns: 1fr 360px; gap: 28px; padding: 36px 32px; max-width: 1100px; margin: 0 auto; }
+
+    .burnout-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 28px;
+      display: flex; gap: 24px; align-items: center;
+    }
+    .burnout-dial {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: var(--surface-2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; flex-shrink: 0;
+      position: relative; border: 3px solid var(--border);
+    }
+    .burnout-dial-inner { display: flex; flex-direction: column; align-items: center; }
+    #burnout-score  { font-size: 1.4rem; font-weight: 700; }
+    .bd-label { font-size: 0.65rem; color: var(--text-3); text-transform: uppercase; }
+
+    .mood-form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 28px; }
+    .mood-emojis { display: flex; justify-content: space-between; margin: 12px 0 20px; gap: 6px; }
+    .mood-emoji-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 10px 12px; border-radius: var(--r-lg);
+      background: var(--surface-2); border: 1.5px solid var(--border);
+      cursor: pointer; transition: all 0.18s; font-size: 1.6rem; flex: 1;
+    }
+    .mood-emoji-btn span.mood-lbl { font-size: 0.62rem; color: var(--text-3); font-weight: 500; }
+    .mood-emoji-btn.selected { border-color: var(--indigo); background: var(--indigo-soft); transform: scale(1.08); }
+
+    .mood-sliders { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .slider-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .slider-group input[type=range] { width: 100%; accent-color: var(--indigo); }
+
+    .mood-tags  { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .tag-chip   { padding: 6px 14px; border-radius: var(--r-full); background: var(--surface-2); border: 1px solid var(--border); font-size: 0.8rem; color: var(--text-2); cursor: pointer; transition: all 0.18s; }
+    .tag-chip:hover  { border-color: var(--indigo); }
+    .tag-chip.active { background: var(--indigo-soft); border-color: rgba(99,102,241,0.4); color: #a5b4fc; }
+
+    .mood-chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 24px; }
+    .mood-bars       { display: flex; gap: 12px; align-items: flex-end; height: 120px; }
+    .mood-bar-col    { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+    .mood-bar-emoji  { font-size: 1rem; }
+    .mood-bar-track  { width: 100%; height: 80px; background: var(--surface-2); border-radius: 6px; display: flex; align-items: flex-end; overflow: hidden; }
+    .mood-bar-fill   { width: 100%; border-radius: 6px; transition: height 0.6s var(--ease-out); min-height: 4px; }
+    .mood-bar-date   { font-size: 0.65rem; color: var(--text-3); }
+
+    .mood-entry-card {
+      background: var(--surface-2); border-radius: var(--r-lg); padding: 14px 16px;
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 10px;
+    }
+    .mood-entry-left  { display: flex; gap: 12px; align-items: center; }
+    .mood-entry-emoji { font-size: 1.5rem; }
+    .mood-entry-label { font-weight: 700; font-size: 0.9rem; }
+    .mood-entry-right { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+    .mood-entry-note  { flex: 1 0 100%; margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+    @media (max-width: 900px) { .wellness-layout { grid-template-columns: 1fr; padding: 24px 20px; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><div class="nav-brand-icon">🧭</div> PathPilot</div>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="wellness.html"  class="nav-link active">Wellness</a>
+      <a href="focus.html"     class="nav-link hide-mobile">Focus</a>
+      <button id="logout-btn"  class="btn btn-ghost btn-sm">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="wellness-layout">
+      <div style="display:flex;flex-direction:column;gap:22px">
+
+        <div class="burnout-card">
+          <div class="burnout-dial">
+            <div class="burnout-dial-inner">
+              <span id="burnout-score">—</span>
+              <span class="bd-label">risk</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;margin-bottom:4px">
+              Burnout Risk: <span id="burnout-level">Calculating…</span>
+            </div>
+            <div id="burnout-tip" class="text-small text-muted" style="max-width:400px;line-height:1.6">Track your mood daily to get burnout insights.</div>
+            <div style="margin-top:10px;font-size:.85rem;color:var(--text-2)">Avg Mood (7 days): <strong id="avg-mood">—</strong>/5</div>
+          </div>
+        </div>
+
+        <div class="mood-chart-card">
+          <div class="section-title" style="margin-bottom:4px">📈 7-Day Mood Trend</div>
+          <p class="text-small text-muted" style="margin-bottom:4px">Your emotional journey this week</p>
+          <div id="mood-chart"><p class="text-small text-muted" style="padding:20px 0">No data yet — start logging your mood!</p></div>
+        </div>
+
+        <div>
+          <div class="section-title" style="margin-bottom:16px">📋 Mood History</div>
+          <div id="mood-history-list">
+            <div class="empty-state"><div class="empty-emoji">🧘</div><div class="empty-title">No entries yet</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="mood-form-card">
+          <h3 style="margin-bottom:4px">Log Today's Mood</h3>
+          <p class="text-small text-muted" style="margin-bottom:18px">Takes 30 seconds. Builds self-awareness.</p>
+
+          <form id="mood-form" style="display:flex;flex-direction:column;gap:18px">
+            <div>
+              <div class="form-label" style="margin-bottom:10px">How are you feeling? *</div>
+              <div class="mood-emojis">
+                <button type="button" class="mood-emoji-btn" data-score="1">😞<span class="mood-lbl">Terrible</span></button>
+                <button type="button" class="mood-emoji-btn" data-score="2">😕<span class="mood-lbl">Low</span></button>
+                <button type="button" class="mood-emoji-btn" data-score="3">😐<span class="mood-lbl">Okay</span></button>
+                <button type="button" class="mood-emoji-btn" data-score="4">🙂<span class="mood-lbl">Good</span></button>
+                <button type="button" class="mood-emoji-btn" data-score="5">😄<span class="mood-lbl">Great</span></button>
+              </div>
+            </div>
+
+            <div class="mood-sliders">
+              <div class="slider-group">
+                <label>Energy (1–5)</label>
+                <input type="range" id="m-energy" min="1" max="5" value="3"/>
+              </div>
+              <div class="slider-group">
+                <label>Stress (1–5)</label>
+                <input type="range" id="m-stress" min="1" max="5" value="3"/>
+              </div>
+              <div class="slider-group">
+                <label>Sleep (hrs)</label>
+                <input type="range" id="m-sleep" min="2" max="12" step="0.5" value="7"/>
+              </div>
+            </div>
+
+            <div>
+              <div class="form-label" style="margin-bottom:8px">Tags</div>
+              <div class="mood-tags">
+                <button type="button" class="tag-chip" data-tag="productive">✅ Productive</button>
+                <button type="button" class="tag-chip" data-tag="tired">😴 Tired</button>
+                <button type="button" class="tag-chip" data-tag="exam_stress">📝 Exam Stress</button>
+                <button type="button" class="tag-chip" data-tag="motivated">🔥 Motivated</button>
+                <button type="button" class="tag-chip" data-tag="anxious">😰 Anxious</button>
+                <button type="button" class="tag-chip" data-tag="calm">🧘 Calm</button>
+                <button type="button" class="tag-chip" data-tag="social">👥 Social</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Note (optional)</label>
+              <textarea id="m-note" class="form-input" rows="2" placeholder="Anything on your mind today?"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full">Log Today's Mood 🧘</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/wellness.js"></script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PathPilot — Your Smart Companion for Student Life & Career Clarity</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    .landing-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: var(--bg); overflow: hidden;
+    }
+    .bg-orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(100px); opacity: 0.12;
+    }
+    .orb-1 { width: 600px; height: 600px; background: var(--indigo); top: -200px; left: -100px; animation: orbFloat 12s ease-in-out infinite; }
+    .orb-2 { width: 400px; height: 400px; background: var(--cyan); bottom: -100px; right: -50px; animation: orbFloat 15s ease-in-out infinite reverse; }
+    .orb-3 { width: 300px; height: 300px; background: var(--emerald); top: 40%; left: 50%; transform: translate(-50%,-50%); animation: orbFloat 10s ease-in-out infinite 3s; }
+    @keyframes orbFloat { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-30px)} }
+
+    .landing-wrapper { position: relative; z-index: 1; min-height: 100vh; }
+
+    .hero-section {
+      padding: 120px 0 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 999px; padding: 6px 18px;
+      font-size: 0.8rem; font-weight: 600; color: #a5b4fc;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s var(--ease-out) both;
+    }
+    .hero-title { margin-bottom: 20px; animation: fadeUp 0.6s var(--ease-out) 0.1s both; }
+    .hero-subtitle { font-size: 1.05rem; max-width: 460px; margin-bottom: 36px; animation: fadeUp 0.6s var(--ease-out) 0.2s both; }
+    .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; animation: fadeUp 0.6s var(--ease-out) 0.3s both; }
+    .feature-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; animation: fadeUp 0.6s var(--ease-out) 0.35s both; }
+    .feature-pill {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 999px; padding: 6px 14px;
+      font-size: 0.8rem; font-weight: 500; color: var(--text-2);
+    }
+    .hero-social-proof { margin-top: 36px; display: flex; align-items: center; gap: 14px; animation: fadeUp 0.6s var(--ease-out) 0.4s both; }
+    .avatars { display: flex; }
+    .avatar-ring {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--grad-primary); border: 2px solid var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; margin-left: -10px;
+    }
+    .avatar-ring:first-child { margin-left: 0; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border-2);
+      border-radius: 28px; padding: 36px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(99,102,241,0.08);
+      animation: fadeUp 0.8s var(--ease-out) 0.2s both;
+      position: relative; overflow: hidden;
+    }
+    .auth-card::before {
+      content: ''; position: absolute; top: -1px; left: 20px; right: 20px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.5), transparent);
+    }
+    .auth-tabs {
+      display: flex; background: var(--surface-2);
+      border-radius: var(--r-md); padding: 4px; margin-bottom: 28px;
+    }
+    .tab-btn {
+      flex: 1; padding: 10px; border: none; border-radius: var(--r-sm);
+      background: transparent; color: var(--text-2);
+      font-family: var(--font-display); font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .tab-btn.active { background: var(--surface-3); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    .auth-form { display: flex; flex-direction: column; gap: 16px; }
+
+    .features-section { padding: 100px 0; }
+    .features-label {
+      text-align: center; font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-3); margin-bottom: 16px;
+    }
+    .features-heading { text-align: center; margin-bottom: 60px; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .feature-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 28px;
+      transition: all 0.3s var(--ease-out); position: relative; overflow: hidden;
+    }
+    .feature-card:hover { border-color: rgba(99,102,241,0.3); transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+    .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; opacity: 0; transition: opacity 0.3s; }
+    .feature-card:hover::before { opacity: 1; }
+    .fc-1::before { background: var(--grad-primary); }
+    .fc-2::before { background: var(--grad-emerald); }
+    .fc-3::before { background: var(--grad-warm); }
+    .fc-4::before { background: linear-gradient(135deg,#22d3ee,#6366f1); }
+    .fc-5::before { background: linear-gradient(135deg,#f43f5e,#f59e0b); }
+    .fc-6::before { background: linear-gradient(135deg,#10b981,#22d3ee); }
+    .feature-icon { width: 52px; height: 52px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 16px; }
+    .fi-1 { background: var(--indigo-soft); }
+    .fi-2 { background: var(--emerald-soft); }
+    .fi-3 { background: var(--amber-soft); }
+    .fi-4 { background: var(--cyan-soft); }
+    .fi-5 { background: var(--rose-soft); }
+    .fi-6 { background: rgba(167,139,250,0.1); }
+    .feature-card h4 { margin-bottom: 8px; }
+    .feature-card p  { font-size: 0.87rem; line-height: 1.65; }
+
+    .stats-strip { padding: 60px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .stats-strip-grid { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; gap: 20px; }
+    .strip-stat-num { font-family: var(--font-display); font-size: 2.8rem; font-weight: 700; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .strip-stat-label { font-size: 0.88rem; color: var(--text-2); margin-top: 4px; }
+
+    .cta-banner {
+      margin: 100px 0; background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-xl); padding: 60px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .cta-banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(99,102,241,0.1) 0%, transparent 70%); }
+    .cta-banner > * { position: relative; }
+    .cta-banner h2 { margin-bottom: 14px; }
+    .cta-banner p  { margin-bottom: 28px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+    .footer { border-top: 1px solid var(--border); padding: 32px 0; text-align: center; }
+    .footer p { font-size: 0.85rem; color: var(--text-3); }
+
+    @media (max-width: 960px) {
+      .hero-section { grid-template-columns: 1fr; padding: 100px 0 60px; gap: 40px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .stats-strip-grid { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="landing-bg">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <div class="landing-wrapper">
+    <nav class="navbar">
+      <div class="nav-brand">
+        <div class="nav-brand-icon">🧭</div>
+        PathPilot
+      </div>
+      <div class="nav-links">
+        <a href="#features" class="nav-link hide-mobile">Features</a>
+        <a href="career.html" class="nav-link hide-mobile">Careers</a>
+        <a href="#auth" class="btn btn-ghost btn-sm">Sign In</a>
+        <a href="#auth" class="btn btn-primary btn-sm">Get Started →</a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <section class="hero-section">
+        <div>
+          <div class="hero-eyebrow">✨ Built for Indian students</div>
+          <h1 class="hero-title">
+            Stop drifting.<br/>
+            <span class="grad-text">Find your path.</span>
+          </h1>
+          <p class="hero-subtitle">
+            PathPilot combines goal tracking, career discovery, focus sessions,
+            and wellness — so you can navigate student life with clarity and confidence.
+          </p>
+          <div class="hero-cta">
+            <a href="#auth" class="btn btn-primary btn-xl">Start Free →</a>
+            <a href="career.html" class="btn btn-ghost btn-lg">Explore Careers</a>
+          </div>
+          <div class="feature-pills">
+            <div class="feature-pill">🎯 Goal Tracker</div>
+            <div class="feature-pill">🍅 Pomodoro Timer</div>
+            <div class="feature-pill">🧭 Career Quiz</div>
+            <div class="feature-pill">🧘 Mood Tracker</div>
+            <div class="feature-pill">🏆 Leaderboard</div>
+            <div class="feature-pill">🗺️ Roadmap Builder</div>
+          </div>
+          <div class="hero-social-proof">
+            <div class="avatars">
+              <div class="avatar-ring">AM</div>
+              <div class="avatar-ring">RK</div>
+              <div class="avatar-ring">SP</div>
+              <div class="avatar-ring">+</div>
+            </div>
+            <p class="text-small" style="color:var(--text-2)">Join students building their future</p>
+          </div>
+        </div>
+
+        <div id="auth">
+          <div class="auth-card">
+            <div style="text-align:center;margin-bottom:24px">
+              <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;margin-bottom:4px">Welcome 👋</div>
+              <p class="text-small text-muted">Your journey to clarity starts here</p>
+            </div>
+            <div class="auth-tabs">
+              <button class="tab-btn active" data-tab="login">Sign In</button>
+              <button class="tab-btn" data-tab="register">Sign Up</button>
+            </div>
+            <form id="login-form" class="auth-form">
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input id="l-email" type="email" class="form-input" placeholder="you@example.com" required/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input id="l-pw" type="password" class="form-input" placeholder="••••••••" required/>
+              </div>
+              <button type="submit" class="btn btn-primary btn-lg w-full">Sign In →</button>
+            </form>
+            <form id="register-form" class="auth-form" style="display:none">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input id="r-name" type="text" class="form-input" placeholder="Your full name" required/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input id="r-email" type="email" class="form-input" placeholder="you@example.com" required/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input id="r-pw" type="password" class="form-input" placeholder="At least 6 characters" required/>
+              </div>
+              <button type="submit" class="btn btn-primary btn-lg w-full">Create Account 🚀</button>
+              <p class="text-small text-muted text-center" style="margin-top:4px">Free forever. No credit card needed.</p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <div class="stats-strip">
+        <div class="stats-strip-grid">
+          <div><div class="strip-stat-num">10+</div><div class="strip-stat-label">Career Paths</div></div>
+          <div><div class="strip-stat-num">6</div><div class="strip-stat-label">Quiz Questions</div></div>
+          <div><div class="strip-stat-num">100%</div><div class="strip-stat-label">Free to Use</div></div>
+          <div><div class="strip-stat-num">∞</div><div class="strip-stat-label">Goals You Can Set</div></div>
+        </div>
+      </div>
+
+      <section class="features-section" id="features">
+        <div class="features-label">Everything You Need</div>
+        <h2 class="features-heading">Built for serious students</h2>
+        <div class="features-grid">
+          <div class="feature-card fc-1">
+            <div class="feature-icon fi-1">🎯</div>
+            <h4>Smart Goal Tracker</h4>
+            <p>Set goals with categories, priorities, deadlines and progress tracking. Visualize momentum in real time.</p>
+          </div>
+          <div class="feature-card fc-2">
+            <div class="feature-icon fi-2">🍅</div>
+            <h4>Pomodoro Focus Timer</h4>
+            <p>25-minute deep work sessions with short and long breaks. Every session is automatically logged to your streak.</p>
+          </div>
+          <div class="feature-card fc-3">
+            <div class="feature-icon fi-3">🔮</div>
+            <h4>AI Career Quiz</h4>
+            <p>Answer 6 questions about your interests and strengths. Get matched to your top career paths instantly.</p>
+          </div>
+          <div class="feature-card fc-4">
+            <div class="feature-icon fi-4">🗺️</div>
+            <h4>Roadmap Builder</h4>
+            <p>Auto-generate a week-by-week learning roadmap for any career path. Track milestones and earn XP as you go.</p>
+          </div>
+          <div class="feature-card fc-5">
+            <div class="feature-icon fi-5">🧘</div>
+            <h4>Wellness & Burnout Tracker</h4>
+            <p>Log daily mood, stress, energy and sleep. Get burnout risk scores and personalized well-being tips.</p>
+          </div>
+          <div class="feature-card fc-6">
+            <div class="feature-icon fi-6">🏆</div>
+            <h4>Leaderboard & Badges</h4>
+            <p>See where you rank among peers. Earn XP, unlock badges, and build streaks that keep you accountable.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="cta-banner">
+        <h2>Ready to find your path?</h2>
+        <p>Stop guessing about your future. Start building it — one goal, one session, one day at a time.</p>
+        <a href="#auth" class="btn btn-primary btn-xl">Get Started Free →</a>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>🧭 PathPilot — Built with purpose for student success &nbsp;|&nbsp; Free Forever</p>
+    </footer>
+  </div>
+
+  <div class="toast-container"></div>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Roadmap — PathPilot</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    .roadmap-layout { max-width: 860px; margin: 0 auto; padding: 40px 28px; }
+
+    .roadmap-hero { margin-bottom: 36px; }
+    .roadmap-hero h2 { margin-bottom: 8px; }
+
+    .roadmap-card   { margin-bottom: 28px; }
+    .roadmap-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+    .roadmap-title  { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; }
+    .roadmap-pct-badge {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 700;
+      background: var(--grad-primary); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+
+    .milestones-list { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .milestone-row {
+      display: flex; gap: 16px; padding: 16px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--r-lg); cursor: pointer; transition: all 0.2s;
+    }
+    .milestone-row:hover       { border-color: var(--border-2); background: var(--surface-3); }
+    .milestone-row.done        { opacity: 0.65; }
+    .milestone-row.done .ms-title { text-decoration: line-through; color: var(--text-2); }
+    .ms-check    { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .ms-week     { margin-bottom: 3px; }
+    .ms-title    { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+    .ms-desc     { line-height: 1.5; }
+    .ms-resources { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+    .skill-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .skill-chip  { padding: 3px 12px; border-radius: var(--r-full); background: var(--surface-2); border: 1px solid var(--border); font-size: 0.76rem; color: var(--text-2); }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand"><div class="nav-brand-icon">🧭</div> PathPilot</div>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="roadmap.html"   class="nav-link active">Roadmap</a>
+      <a href="career.html"    class="nav-link hide-mobile">Careers</a>
+      <button id="logout-btn"  class="btn btn-ghost btn-sm">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="roadmap-layout">
+      <div class="roadmap-hero">
+        <span class="badge badge-emerald" style="margin-bottom:12px">🗺️ Learning Roadmaps</span>
+        <h2>Your <span class="grad-text">learning path</span></h2>
+        <p class="text-muted" style="margin-top:8px">Auto-generated week-by-week plans. Check off milestones to earn XP.</p>
+      </div>
+
+      <div id="roadmaps-container">
+        <div class="empty-state"><div class="empty-emoji">⏳</div><p>Loading…</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/roadmap.js"></script>
+</body>
+</html>
