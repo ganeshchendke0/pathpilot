@@ -1,5 +1,4 @@
-from flask import Flask, jsonify
-from flask_cors import CORS
+from flask import Flask, jsonify, request, make_response
 from config import Config
 from routes.routes import (
     auth_bp, goals_bp, career_bp, focus_bp,
@@ -9,7 +8,22 @@ from routes.routes import (
 app = Flask(__name__)
 app.config["SECRET_KEY"] = Config.SECRET_KEY
 
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+def add_cors(response):
+    response.headers["Access-Control-Allow-Origin"]  = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    return response
+
+app.after_request(add_cors)
+
+@app.before_request
+def handle_options():
+    if request.method == "OPTIONS":
+        response = make_response()
+        response.headers["Access-Control-Allow-Origin"]  = "*"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+        return response
 
 for bp in [auth_bp, goals_bp, career_bp, focus_bp,
            wellness_bp, lb_bp, notif_bp, ai_bp, roadmap_bp]:
@@ -28,4 +42,4 @@ def server_error(e):
     return jsonify({"error": "Internal server error", "detail": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=Config.DEBUG, port=Config.PORT)
+    app.run(debug=Config.DEBUG, port=Config.PORT, host="0.0.0.0")
