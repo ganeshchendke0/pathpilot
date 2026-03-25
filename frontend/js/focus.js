@@ -156,10 +156,27 @@ async function onTimerComplete() {
   }
 }
 
-function resetTimer() {
+async function resetTimer() {
   clearInterval(timerInterval);
   timerRunning = false;
-  secondsLeft  = MODES[currentMode].minutes * 60;
+
+  const total   = MODES[currentMode].minutes * 60;
+  const studied = total - secondsLeft;
+  if (currentMode === "pomodoro" && studied >= 60) {
+    try {
+      await Focus.log({
+        subject:      sessionSubject || "General Study",
+        duration_min: Math.round(studied / 60),
+        type:         "pomodoro",
+      });
+      showToast("✅ Session saved!", "success");
+      await loadStats();
+    } catch (err) {
+      console.warn("Could not log session:", err.message);
+    }
+  }
+
+  secondsLeft = MODES[currentMode].minutes * 60;
   document.getElementById("start-btn").textContent = "▶ Start";
   document.getElementById("start-btn").classList.replace("btn-primary", "btn-ghost");
   updateDisplay();
