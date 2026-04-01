@@ -1,5 +1,6 @@
 import jwt
 import bcrypt
+from utils.ai_engine import ask_career_question, generate_resume
 from datetime import datetime, timedelta
 from flask import request, jsonify
 from config import Config
@@ -262,3 +263,26 @@ def toggle_milestone(mid):
     if r and r.get("is_done"):
         UserModel.add_xp(request.user_id, 50)
     return jsonify({"milestone": r}), 200
+# ── AI Chat ──────────────────────────────────
+def ai_chat():
+    data = request.get_json()
+    question = data.get("question", "")
+    context  = data.get("context", "")
+    if not question:
+        return jsonify({"error": "Question is required"}), 400
+    try:
+        answer = ask_career_question(question, context)
+        return jsonify({"answer": answer})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ── Resume Builder ────────────────────────────
+def build_resume():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    try:
+        resume = generate_resume(data)
+        return jsonify({"resume": resume})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
