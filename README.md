@@ -162,4 +162,4 @@ If you like this project, give it a ⭐ on GitHub!
 
 ## 📜 License
 
-This project is for educational purposes.
+This project is for educational purposes.cd

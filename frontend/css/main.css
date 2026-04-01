@@ -8,6 +8,7 @@
 @import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap');
 
 :root {
+  /* Dark mode (default) */
   --bg:          #060910;
   --bg-2:        #0d1117;
   --surface:     #111520;
@@ -54,6 +55,42 @@
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Light mode */
+[data-theme="light"] {
+  --bg:          #f8f9fc;
+  --bg-2:        #f0f2f7;
+  --surface:     #ffffff;
+  --surface-2:   #f3f5fa;
+  --surface-3:   #e8ecf3;
+  --border:      rgba(0,0,0,0.06);
+  --border-2:    rgba(0,0,0,0.1);
+
+  --indigo:      #6366f1;
+  --indigo-soft: rgba(99,102,241,0.1);
+  --cyan:        #0891b2;
+  --cyan-soft:   rgba(8,145,178,0.08);
+  --emerald:     #059669;
+  --emerald-soft:rgba(5,150,105,0.08);
+  --amber:       #d97706;
+  --amber-soft:  rgba(217,119,6,0.08);
+  --rose:        #e11d48;
+  --rose-soft:   rgba(225,29,72,0.08);
+
+  --grad-primary:  linear-gradient(135deg, #6366f1 0%, #0891b2 100%);
+  --grad-warm:     linear-gradient(135deg, #d97706 0%, #e11d48 100%);
+  --grad-emerald:  linear-gradient(135deg, #059669 0%, #0891b2 100%);
+
+  --text:        #1f2937;
+  --text-2:      #6b7280;
+  --text-3:      #9ca3af;
+
+  --shadow-sm:  0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md:  0 8px 32px rgba(0,0,0,0.12);
+  --shadow-lg:  0 20px 60px rgba(0,0,0,0.15);
+  --glow-indigo: 0 0 40px rgba(99,102,241,0.1);
+  --glow-cyan:   0 0 40px rgba(8,145,178,0.08);
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; font-size: 16px; }
 
@@ -65,6 +102,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.3s var(--ease-in-out), color 0.3s var(--ease-in-out);
 }
 
 h1, h2, h3, h4 {
@@ -234,6 +272,10 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   background: rgba(6,9,16,0.8);
   backdrop-filter: blur(24px) saturate(180%);
   border-bottom: 1px solid var(--border);
+  transition: background 0.3s var(--ease-in-out);
+}
+[data-theme="light"] .navbar {
+  background: rgba(248,249,252,0.8);
 }
 .nav-brand {
   font-family: var(--font-display);
@@ -370,6 +412,28 @@ textarea.form-input { resize: vertical; min-height: 90px; }
 
 /* ── Divider ── */
 .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ── Theme Toggle ── */
+.theme-toggle {
+  width: 38px; height: 38px;
+  padding: 0; border-radius: var(--r-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  color: var(--text-2);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+}
+.theme-toggle:hover {
+  color: var(--text);
+  background: var(--surface-3);
+  border-color: rgba(99,102,241,0.3);
+}
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+}
 
 /* ── Utilities ── */
 .flex            { display: flex; }

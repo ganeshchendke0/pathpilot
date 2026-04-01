@@ -159,6 +159,9 @@
       <div class="nav-links">
         <a href="#features" class="nav-link hide-mobile">Features</a>
         <a href="career.html" class="nav-link hide-mobile">Careers</a>
+        <button type="button" class="theme-toggle nav-link" id="theme-toggle" aria-label="Switch to light mode">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
         <a href="#auth" class="btn btn-ghost btn-sm">Sign In</a>
         <a href="#auth" class="btn btn-primary btn-sm">Get Started →</a>
       </div>
@@ -299,8 +302,16 @@
   </div>
 
   <div class="toast-container"></div>
+  <script src="js/theme.js"></script>
   <script src="js/api.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/auth.js"></script>
+  <script>
+    // Theme toggle button handler
+    document.getElementById('theme-toggle').addEventListener('click', (e) => {
+      e.preventDefault();
+      if (window.themeManager) window.themeManager.toggle();
+    });
+  </script>
 </body>
 </html>
