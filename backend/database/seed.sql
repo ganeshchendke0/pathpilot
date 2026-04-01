@@ -3,7 +3,7 @@
 -- ═══════════════════════════════════════════════════════════
 
 -- ─────────────────────────────────────────
--- CAREER PATHS (10 diverse paths)
+-- CAREER PATHS (20+ diverse paths across all fields)
 -- ─────────────────────────────────────────
 INSERT INTO career_paths (title, field, description, avg_salary_inr, avg_salary_usd, growth_rate, difficulty, time_to_entry, required_skills, nice_to_have_skills, recommended_courses, top_companies, job_roles, icon_emoji, quiz_tags) VALUES
 
@@ -105,11 +105,202 @@ INSERT INTO career_paths (title, field, description, avg_salary_inr, avg_salary_
  ARRAY['CFI Financial Modeling','Coursera Finance Specialization','CFA Program'],
  ARRAY['Banks','NBFC','Big 4 Firms','Investment Firms','Startups'],
  ARRAY['Financial Analyst','Investment Analyst','Equity Researcher','CFO (senior)'],
- '💹', ARRAY['finance','numbers','analysis','business','math']);
+ '💹', ARRAY['finance','numbers','analysis','business','math']),
+
+('Doctor / Medical Professional', 'Healthcare',
+ 'Provide healthcare, diagnose illnesses, and save lives. High respect, strong job security, and global opportunities.',
+ '₹10L – ₹50L+/yr', '$130K – $300K+/yr', '16% (Faster)', 'very hard', '5.5–7 years (MBBS + specialization)',
+ ARRAY['NEET Exam','Biology','Chemistry','Medicine','Patient Care','Clinical Skills'],
+ ARRAY['Surgery','Research','Medical Technology','Hospital Management'],
+ ARRAY['NEET Coaching','Medical Colleges','WHO Resources','CME Programs'],
+ ARRAY['Hospitals','Clinics','Research Centers','NGOs','Government Health'],
+ ARRAY['Doctor','Surgeon','Specialist','Hospital Administrator','Medical Researcher'],
+ '⚕️', ARRAY['healthcare','science','helping','research','problem-solving']),
+
+('Nurse / Healthcare Technician', 'Healthcare',
+ 'Provide compassionate patient care, support doctors, and make a direct impact on people''s health and recovery.',
+ '₹2.5L – ₹8L/yr', '$35K – $60K/yr', '18% (Faster)', 'moderate', '2–3 years',
+ ARRAY['Medical Knowledge','Patient Care','Empathy','Communication','Lab Skills','Anatomy'],
+ ARRAY['ICU Nursing','Critical Care','Medical Technology'],
+ ARRAY['Nursing Colleges','Red Cross Training','WHO Protocols','Online Courses'],
+ ARRAY['Hospitals','Clinics','NGOs','Ambulance Services','Home Care'],
+ ARRAY['Registered Nurse','Nursing Assistant','ICU Technician','Medical Technologist'],
+ '🏥', ARRAY['healthcare','helping','science','empathy','caring']),
+
+('Teacher / Educator', 'Education',
+ 'Shape young minds, inspire learning, and build the future. Make a meaningful difference in students'' lives.',
+ '₹2.5L – ₹10L/yr', '$30K – $75K/yr', '8% (Average)', 'easy', '1–4 years (B.Ed or M.Ed)',
+ ARRAY['Subject Expertise','Communication','Patience','Curriculum Design','Classroom Management'],
+ ARRAY['Educational Technology','Special Education','Counseling'],
+ ARRAY['B.Ed Programs','CTET','Online Courses','Teaching Certifications'],
+ ARRAY['Schools','Colleges','Online Platforms','Coaching Centers','Private Institutions'],
+ ARRAY['Teacher','Lecturer','Professor','Curriculum Designer','Education Manager'],
+ '📚', ARRAY['education','communication','empathy','helping','teaching']),
+
+('Corporate Trainer / L&D Specialist', 'Education',
+ 'Develop employee skills, design training programs, and drive organizational development and learning.',
+ '₹4L – ₹15L/yr', '$50K – $90K/yr', '12% (Faster)', 'moderate', '3–5 years',
+ ARRAY['Instructional Design','Communication','Training Tools','Analytics','Psychology'],
+ ARRAY['E-learning Development','Gamification','Leadership Coaching'],
+ ARRAY['IDOL Certification','Coursera Learning Design','ATD Programs'],
+ ARRAY['Fortune 500 Companies','Consulting Firms','EdTech Startups','Coaching Centers'],
+ ARRAY['Training Manager','Instructional Designer','Learning Consultant','HR Manager'],
+ '🎓', ARRAY['education','communication','leadership','business','empathy']),
+
+('Civil Engineer', 'Engineering',
+ 'Design and build infrastructure that society depends on — roads, bridges, buildings, and water systems.',
+ '₹5L – ₹20L/yr', '$65K – $110K/yr', '7% (Average)', 'hard', '4–6 years',
+ ARRAY['CAD Software','Structural Analysis','Mathematics','Physics','Project Management'],
+ ARRAY['BIM','Revit','Site Management','Environmental Engineering'],
+ ARRAY['Civil Engineering Colleges','AutoCAD Training','PMP Certification'],
+ ARRAY['Larsen & Toubro','Tata Projects','GMR','Construction Companies','Government'],
+ ARRAY['Civil Engineer','Project Manager','Structural Engineer','Site Supervisor','Contractor'],
+ '🏗️', ARRAY['engineering','problem-solving','math','building','infrastructure']),
+
+('Psychologist / Counselor', 'Healthcare & Social',
+ 'Help people overcome mental health challenges, provide therapy, and improve overall well-being.',
+ '₹3L – ₹12L/yr', '$45K – $85K/yr', '14% (Faster)', 'moderate', '2–4 years',
+ ARRAY['Psychology','Counseling Skills','Active Listening','Empathy','Assessment Methods'],
+ ARRAY['Clinical Psychology','Cognitive Behavioral Therapy','Research Methods'],
+ ARRAY['Psychology Degree','Counseling Certification','IACP Programs','Online Therapies'],
+ ARRAY['Hospitals','Mental Health Clinics','Schools','Corporate','NGOs','Private Practice'],
+ ARRAY['Counselor','Clinical Psychologist','School Psychologist','Therapist','Life Coach'],
+ '🧠', ARRAY['psychology','empathy','helping','caring','listening']),
+
+('Lawyer / Legal Professional', 'Law',
+ 'Defend justice, advise clients on legal matters, and make a significant impact on law and society.',
+ '₹4L – ₹30L+/yr', '$60K – $200K+/yr', '10% (Average)', 'hard', '5–7 years',
+ ARRAY['Law','Legal Research','Writing','Communication','Critical Thinking','Ethics'],
+ ARRAY['Corporate Law','Criminal Law','Intellectual Property','Litigation'],
+ ARRAY['Law Colleges','CLAT Coaching','Bar Association Courses','Online Legal Training'],
+ ARRAY['Law Firms','Courts','Corporate Legal','Government','NGOs'],
+ ARRAY['Lawyer','Attorney','Judge','Legal Advisor','Patent Agent','Diplomat'],
+ '⚖️', ARRAY['law','justice','communication','analysis','leadership']),
+
+('Journalist / Media Professional', 'Media & Communications',
+ 'Tell stories that matter, investigate truth, and inform the public. Be the voice of society.',
+ '₹2.5L – ₹12L/yr', '$40K – $80K/yr', '5% (Slower)', 'moderate', '1–3 years',
+ ARRAY['Writing','Research','Interview Skills','Photography/Videography','News Judgment','Ethics'],
+ ARRAY['Investigative Journalism','Data Journalism','Podcast Production'],
+ ARRAY['Journalism Schools','Online Courses','AP Style Guide','Media Bootcamps'],
+ ARRAY['News Organizations','Media Houses','Digital Platforms','Independent Media'],
+ ARRAY['Reporter','Editor','Podcast Host','Photojournalist','News Anchor','Freelancer'],
+ '📰', ARRAY['communication','writing','research','storytelling','justice']),
+
+('Graphic Designer / Visual Artist', 'Design & Arts',
+ 'Create stunning visual content that communicates ideas, builds brands, and engages audiences.',
+ '₹2.5L – ₹10L/yr', '$35K – $75K/yr', '11% (Average)', 'moderate', '3–6 months (courses) / 4 years (degree)',
+ ARRAY['Adobe Creative Suite','Design Principles','Typography','Color Theory','UI/UX Basics'],
+ ARRAY['Animation','3D Design','Web Design','Branding'],
+ ARRAY['Graphic Design Bootcamps','Design Fundamentals','Skillshare','Domestika'],
+ ARRAY['Design Agencies','Advertising','Publishing','Startups','Freelance'],
+ ARRAY['Graphic Designer','Brand Designer','Art Director','Design Lead','Freelancer'],
+ '🎨', ARRAY['design','creativity','visual','art','communication']),
+
+('Architect', 'Design & Engineering',
+ 'Design beautiful and functional buildings and spaces that improve how people live and work.',
+ '₹5L – ₹20L/yr', '$70K – $120K/yr', '6% (Average)', 'hard', '5–7 years',
+ ARRAY['Design','CAD','Building Codes','Spatial Planning','Mathematics','Project Management'],
+ ARRAY['BIM','Sustainable Design','3D Visualization','Construction Management'],
+ ARRAY['Architecture Schools','Revit Training','AIA Certification','CAD Courses'],
+ ARRAY['Architecture Firms','Real Estate','Government','Construction','Urban Planning'],
+ ARRAY['Architect','Senior Architect','Design Lead','Project Manager','Urban Planner'],
+ '🏢', ARRAY['design','creativity','engineering','problem-solving','planning']),
+
+('Chef / Culinary Professional', 'Hospitality & Food',
+ 'Create amazing dishes, manage kitchens, and provide unforgettable dining experiences.',
+ '₹2L – ₹10L/yr', '$30K – $70K/yr', '9% (Average)', 'moderate', '1–3 years',
+ ARRAY['Cooking','Food Safety','Menu Planning','Kitchen Management','Creativity','Communication'],
+ ARRAY['Pastry Arts','Nutrition','Food Photography','Restaurant Management'],
+ ARRAY['Culinary Schools','Chef Training Programs','Online Cooking Courses','Food Blogs'],
+ ARRAY['Hotels','Restaurants','Catering','Cruiseships','Food Startups','Personal Chef'],
+ ARRAY['Chef','Sous Chef','Head Chef','Pastry Chef','Food Blogger','Restaurateur'],
+ '👨‍🍳', ARRAY['creativity','hospitality','food','management','teaching']),
+
+('Environmental Scientist', 'Environment & Science',
+ 'Protect the planet by researching environmental issues and developing sustainable solutions.',
+ '₹3.5L – ₹12L/yr', '$55K – $90K/yr', '11% (Faster)', 'hard', '2–4 years',
+ ARRAY['Environmental Science','Research Methods','Data Analysis','Policy Making','GIS Software'],
+ ARRAY['Climate Science','Renewable Energy','Conservation Biology','Sustainability'],
+ ARRAY['Environmental Science Degree','GIS Training','Coursera Programs','NGO Internships'],
+ ARRAY['Government Agencies','NGOs','Research Institutes','Tech Companies','Startups'],
+ ARRAY['Environmental Scientist','Researcher','Conservation Officer','Sustainability Manager'],
+ '🌱', ARRAY['environment','science','research','helping','sustainability']),
+
+('Entrepreneur / Startup Founder', 'Business & Entrepreneurship',
+ 'Build your own business, innovate, and create jobs. Turn your ideas into reality and impact society.',
+ '₹0 – ₹100L+/yr', '$0 – $1M+/yr', '20% (Much faster)', 'very hard', 'Variable (experience + network dependent)',
+ ARRAY['Business Strategy','Finance','Marketing','Leadership','Problem-Solving','Resilience'],
+ ARRAY['Product Development','Fundraising','Sales','Networking'],
+ ARRAY['Lean Startup','Business Bootcamps','YCombinator Startup School','NASSCOM Startup Programs'],
+ ARRAY['Self-Employed','VC-Backed Startups','Accelerators','Angel Networks'],
+ ARRAY['Founder','CEO','Chief Product Officer','Investment Partner (later)'],
+ '🚀', ARRAY['business','leadership','innovation','risk-taking','strategy']),
+
+('Human Resources Manager', 'Business & HR',
+ 'Build great teams, develop talent, and create positive workplace culture that drives business success.',
+ '₹3.5L – ₹15L/yr', '$50K – $100K/yr', '10% (Average)', 'moderate', '2–4 years',
+ ARRAY['HR Fundamentals','Recruitment','Employee Relations','Performance Management','Communication'],
+ ARRAY['SHRM Certification','Labor Laws','HRIS Systems','Organizational Development'],
+ ARRAY['SHRM Courses','HR Certification Programs','Online HR Training','Corporate Programs'],
+ ARRAY['Tech Companies','Fortune 500','Startups','Consulting Firms','HR Services'],
+ ARRAY['HR Manager','Recruiter','HR Specialist','HRBusiness Partner','Talent Manager'],
+ '👥', ARRAY['hr','leadership','communication','empathy','business']),
+
+('Photographer / Visual Storyteller', 'Arts & Media',
+ 'Capture moments and stories through photography. Build a portfolio and monetize your artistic vision.',
+ '₹1.5L – ₹10L/yr', '$20K – $80K/yr', '8% (Average)', 'moderate', '1–3 years',
+ ARRAY['Photography','Editing Software','Lighting','Composition','Business Skills','Marketing'],
+ ARRAY['Videography','Drone Photography','Commercial Photography','Social Media'],
+ ARRAY['Photography Bootcamps','YouTube Tutorials','Skillshare','Online Courses','Mentorship'],
+ ARRAY['Freelance','Media Companies','Wedding Services','Stock Photo Sites','Brands','Instagram'],
+ ARRAY['Photographer','Videographer','Photo Editor','Content Creator','Visual Consultant'],
+ '📸', ARRAY['creativity','visual','storytelling','art','technical']),
+
+('Electrician / Skilled Tradesperson', 'Trades & Technical',
+ 'Learn valuable hands-on skills that are always in demand. Build a profitable career as an independent tradesperson.',
+ '₹2.5L – ₹8L/yr', '$40K – $70K/yr', '14% (Faster)', 'moderate', '3–4 years apprenticeship',
+ ARRAY['Electrical Systems','Safety','Tools','Building Codes','Problem-Solving','Communication'],
+ ARRAY['Solar Installation','HVAC','Automation','Advanced Diagnostics'],
+ ARRAY['ITI Programs','Trade Apprenticeships','Certification Courses','On-the-job Training'],
+ ARRAY['Construction Companies','Maintenance Services','Government','Self-Employed','Factories'],
+ ARRAY['Electrician','Licensed Tradesperson','Site Supervisor','Contractor','Business Owner'],
+ '⚡', ARRAY['technical','problem-solving','building','hands-on','practical']),
+
+('Agricultural Expert / Farmer', 'Agriculture',
+ 'Feed the nation by adopting modern farming techniques. Combine tradition with technology for sustainable agriculture.',
+ '₹1.5L – ₹6L/yr', '$25K – $50K/yr', '3% (Slower)', 'moderate', '2–4 years',
+ ARRAY['Agronomy','Soil Science','Crop Management','Modern Farming','Irrigation','Marketing'],
+ ARRAY['Organic Farming','Precision Agriculture','Agricultural Tech','Horticulture'],
+ ARRAY['Agricultural Colleges','ICAR Programs','Online Courses','Government Schemes'],
+ ARRAY['Government Agricultural Dept','Agribusiness Companies','Cooperatives','Self-Employed','Export'],
+ ARRAY['Farmer','Agricultural Scientist','Extension Officer','Agribusiness Manager'],
+ '🌾', ARRAY['agriculture','science','nature','sustainability','business']),
+
+('Social Worker / Community Developer', 'Social Services',
+ 'Make a real difference in people''s lives by addressing social issues, helping communities, and advocating for justice.',
+ '₹2L – ₹8L/yr', '$30K – $60K/yr', '8% (Average)', 'moderate', '2–3 years',
+ ARRAY['Social Work','Communication','Problem-Solving','Research','Empathy','Community Engagement'],
+ ARRAY['Counseling','Program Management','Advocacy','Policy Development'],
+ ARRAY['Social Work Degree','Certificate Programs','NGO Training','Online Courses'],
+ ARRAY['NGOs','Government Agencies','International Organizations','Community Centers','Charities'],
+ ARRAY['Social Worker','Community Coordinator','Program Manager','Child Protection Officer','Advocate'],
+ '❤️', ARRAY['social','empathy','helping','justice','community']),
+
+('Manufacturing / Operations Manager', 'Manufacturing & Operations',
+ 'Optimize production processes, improve efficiency, and lead teams in a manufacturing or operations environment.',
+ '₹4L – ₹15L/yr', '$60K – $110K/yr', '5% (Slower)', 'moderate', '3–5 years',
+ ARRAY['Operations','Process Improvement','Quality Control','Team Leadership','Data Analysis','Six Sigma'],
+ ARRAY['Lean Manufacturing','Supply Chain','ERP Systems','Project Management'],
+ ARRAY['MBA Programs','Operations Certification','Six Sigma Training','Online Courses'],
+ ARRAY['Manufacturing Plants','Warehouses','Logistics Companies','Government','Startups'],
+ ARRAY['Operations Manager','Production Supervisor','Plant Manager','Supply Chain Manager','Quality Manager'],
+ '🏭', ARRAY['operations','management','problem-solving','leadership','technical'])
 
 -- ─────────────────────────────────────────
 -- CAREER QUIZ QUESTIONS
 -- ─────────────────────────────────────────
+
 INSERT INTO quiz_questions (question, options, category, order_num) VALUES
 
 ('When you have free time, what do you naturally gravitate towards?',
@@ -125,39 +316,39 @@ INSERT INTO quiz_questions (question, options, category, order_num) VALUES
    {"text": "Why is this website slow? How do I make it faster?", "tags": ["tech","problem-solving","infrastructure"]},
    {"text": "Why do users drop off here? How do I improve this experience?", "tags": ["design","empathy","product","ux"]},
    {"text": "Why is this company losing money? What can change?", "tags": ["business","analysis","finance","strategy"]},
-   {"text": "How do I grow this product''s audience by 10x?", "tags": ["marketing","growth","communication","social-media"]}
+   {"text": "How do I help people feel better, be healthier, or solve their real problems?", "tags": ["healthcare","empathy","social","helping","psychology"]}
  ]'::jsonb, 'problem-type', 2),
 
 ('What kind of work environment energizes you?',
  '[
-   {"text": "Deep solo work — headphones in, in the zone", "tags": ["coding","research","data","writing"]},
-   {"text": "Creative collaboration — brainstorming with a team", "tags": ["design","product","leadership","creativity"]},
-   {"text": "Fast-paced, high-stakes situations", "tags": ["security","finance","leadership","strategy"]},
-   {"text": "Public-facing — talking, presenting, creating", "tags": ["marketing","communication","media","storytelling"]}
+   {"text": "Deep solo work — headphones in, in the zone", "tags": ["coding","research","data","writing","hands-on"]},
+   {"text": "Creative collaboration — brainstorming with a team", "tags": ["design","product","leadership","creativity","teams"]},
+   {"text": "Fast-paced, high-stakes situations or leadership roles", "tags": ["security","finance","leadership","strategy","management"]},
+   {"text": "Public-facing — talking, presenting, helping, or leading others", "tags": ["marketing","communication","media","storytelling","education","healthcare"]}
  ]'::jsonb, 'work-style', 3),
 
 ('Which subject or activity did you enjoy most in school/college?',
  '[
    {"text": "Mathematics, logic, or programming", "tags": ["tech","math","coding","data","problem-solving"]},
-   {"text": "Arts, design, or media production", "tags": ["design","creativity","visual","art","media"]},
-   {"text": "Economics, business studies, or entrepreneurship", "tags": ["business","finance","strategy","planning"]},
-   {"text": "Writing, communication, or social sciences", "tags": ["writing","communication","empathy","storytelling"]}
+   {"text": "Arts, design, or creative subjects", "tags": ["design","creativity","visual","art","media"]},
+   {"text": "Science, biology, health, or nature", "tags": ["healthcare","science","research","environment","agriculture"]},
+   {"text": "People, law, society, or business", "tags": ["writing","communication","empathy","storytelling","law","business","social","education"]}
  ]'::jsonb, 'academic', 4),
 
 ('What does success look like to you in 5 years?',
  '[
-   {"text": "Building products millions of people use", "tags": ["tech","coding","product","building"]},
-   {"text": "Running my own creative studio or brand", "tags": ["design","media","creativity","storytelling","art"]},
-   {"text": "Leading a team and shaping company strategy", "tags": ["leadership","business","strategy","planning","product"]},
-   {"text": "Financial freedom through smart investments or a business", "tags": ["finance","business","analysis"]}
+   {"text": "Building or creating something meaningful that helps people", "tags": ["tech","coding","product","building","healthcare","helping"]},
+   {"text": "Running my own business or creative venture", "tags": ["design","media","creativity","storytelling","art","entrepreneurship","business"]},
+   {"text": "Leading a team and shaping strategy at a respected organization", "tags": ["leadership","business","strategy","planning","product","management"]},
+   {"text": "Using expertise to protect, defend, understand, or improve the world", "tags": ["law","justice","security","science","research","environment","social"]}
  ]'::jsonb, 'goals', 5),
 
 ('How do you prefer to communicate your ideas?',
  '[
-   {"text": "Through code, data, or technical demos", "tags": ["tech","data","problem-solving"]},
-   {"text": "Through visuals, mockups, or design presentations", "tags": ["design","visual","creativity"]},
-   {"text": "Through documents, reports, or strategic plans", "tags": ["business","writing","analysis","finance"]},
-   {"text": "Through videos, posts, talks, or storytelling", "tags": ["media","communication","storytelling","marketing"]}
+   {"text": "Through code, data, systems, or technical demonstrations", "tags": ["tech","data","problem-solving","infrastructure","trades"]},
+   {"text": "Through visuals, mockups, designs, or creative presentations", "tags": ["design","visual","creativity","media"]},
+   {"text": "Through writing, reports, plans, or thoughtful analysis", "tags": ["business","writing","analysis","finance","law","research"]},
+   {"text": "Through conversations, presentations, or direct human connection", "tags": ["media","communication","storytelling","marketing","healthcare","education","social"]}
  ]'::jsonb, 'communication', 6);
 
 -- ─────────────────────────────────────────

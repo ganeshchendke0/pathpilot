@@ -235,18 +235,25 @@ function setupQuizModal() {
 }
 
 async function startQuiz() {
-  if (!Auth.isLoggedIn()) { showToast("Sign in to take the quiz", "warning"); return; }
+  if (!Auth.isLoggedIn()) { 
+    showToast("Sign in to take the quiz", "warning"); 
+    return; 
+  }
   openModal("quiz-modal");
   const body = document.getElementById("quiz-body");
   body.innerHTML = `<p class="text-muted">Loading quiz…</p>`;
   try {
     const { questions } = await AI.quizQuestions();
+    if (!questions || !questions.length) {
+      throw new Error("No quiz questions available");
+    }
     quizQuestions = questions;
     quizAnswers   = [];
     currentQ      = 0;
     renderQuestion();
   } catch (err) {
-    body.innerHTML = `<p style="color:var(--rose)">${err.message}</p>`;
+    console.error("Quiz load error:", err);
+    body.innerHTML = `<p style="color:var(--rose)">⚠️ ${err.message}</p>`;
   }
 }
 
@@ -256,6 +263,7 @@ function renderQuestion() {
   const q    = quizQuestions[currentQ];
   const opts = typeof q.options === "string" ? JSON.parse(q.options) : q.options;
   const pct  = Math.round(((currentQ) / quizQuestions.length) * 100);
+  let selectedTags = null;
 
   body.innerHTML = `
     <div class="quiz-progress">
@@ -268,31 +276,65 @@ function renderQuestion() {
     <div class="quiz-question">${esc(q.question)}</div>
     <div class="quiz-options">
       ${opts.map((opt, i) => `
-        <button class="quiz-option-btn" onclick="selectAnswer(${JSON.stringify(opt.tags)}, this)">
+        <button class="quiz-option-btn" data-option-index="${i}" data-tags="${JSON.stringify(typeof opt.tags === 'string' ? JSON.parse(opt.tags) : opt.tags).replace(/"/g, '&quot;')}">
           <span class="qopt-letter">${String.fromCharCode(65 + i)}</span>
           <span>${esc(opt.text)}</span>
         </button>`).join("")}
+    </div>
+    <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+      ${currentQ > 0 ? `<button class="btn btn-ghost btn-md" onclick="goToPreviousQuestion()">← Back</button>` : ""}
+      <button class="btn btn-primary btn-md" id="next-btn" onclick="goToNextQuestion()" disabled>Next →</button>
     </div>`;
+
+  // Attach event listeners to options
+  document.querySelectorAll(".quiz-option-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      document.querySelectorAll(".quiz-option-btn").forEach(b => b.classList.remove("selected"));
+      this.classList.add("selected");
+      document.getElementById("next-btn").disabled = false;
+      selectedTags = JSON.parse(this.dataset.tags);
+    });
+  });
 }
 
-function selectAnswer(tags, btn) {
-  document.querySelectorAll(".quiz-option-btn").forEach(b => b.classList.remove("selected"));
-  btn.classList.add("selected");
-  setTimeout(() => {
-    quizAnswers.push(tags);
-    currentQ++;
+function goToNextQuestion() {
+  if (!document.querySelector(".quiz-option-btn.selected")) {
+    showToast("Please select an answer", "warning");
+    return;
+  }
+  const selectedBtn = document.querySelector(".quiz-option-btn.selected");
+  const tags = JSON.parse(selectedBtn.dataset.tags);
+  quizAnswers.push(tags);
+  currentQ++;
+  renderQuestion();
+}
+
+function goToPreviousQuestion() {
+  if (currentQ > 0) {
+    quizAnswers.pop();
+    currentQ--;
     renderQuestion();
-  }, 400);
+  }
 }
 
 async function submitQuiz() {
   const body = document.getElementById("quiz-body");
   body.innerHTML = `<p class="text-muted text-center" style="padding:30px">✨ Analysing your answers…</p>`;
   try {
-    const { matches } = await AI.quizSubmit(quizAnswers);
+    // Flatten and filter the answers - convert arrays of tags to a single combined list
+    const flattenedAnswers = quizAnswers.flat().filter(Boolean);
+    if (!flattenedAnswers.length) {
+      throw new Error("No valid answers to submit");
+    }
+    const { matches } = await AI.quizSubmit(flattenedAnswers);
+    if (!matches || !matches.length) {
+      body.innerHTML = `<p class="text-muted text-center">No career matches found. Please try again.</p>`;
+      return;
+    }
     renderQuizResults(matches);
   } catch (err) {
-    body.innerHTML = `<p style="color:var(--rose)">${err.message}</p>`;
+    console.error("Quiz submission error:", err);
+    body.innerHTML = `<p style="color:var(--rose)">Error: ${err.message}</p>`;
   }
 }
 

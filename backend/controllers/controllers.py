@@ -218,7 +218,8 @@ def quiz_questions():
 def quiz_submit():
     d       = request.get_json()
     answers = d.get("answers", [])
-    all_tags = [tag for ans in answers for tag in ans]
+    # answers is already a flat array of tags from frontend
+    all_tags = [tag for tag in answers if tag]  # filter out empty/None values
     matches = score_career_matches(all_tags)
     from config.db import execute
     execute(
