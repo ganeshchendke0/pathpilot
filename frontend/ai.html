@@ -8,25 +8,24 @@
 </head>
 <body>
 <nav class="navbar">
-  <a class="nav-brand" href="dashboard.html">🧭 PathPilot</a>
+  <div class="nav-brand"><div class="nav-brand-icon">🧭</div> PathPilot</div>
   <div class="nav-links">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="career.html">Careers</a>
-    <a href="ai.html" class="active">AI Assistant</a>
+    <a href="dashboard.html" class="nav-link">Dashboard</a>
+    <a href="career.html" class="nav-link">Careers</a>
+    <a href="ai.html" class="nav-link active">🤖 AI</a>
     <button class="btn btn-ghost btn-sm" id="logout-btn">Sign Out</button>
   </div>
 </nav>
 
 <main class="container" style="max-width:800px;padding-top:32px">
 
-  <!-- AI Chat -->
   <div class="card" style="margin-bottom:24px">
     <h2 style="margin-bottom:4px">🤖 AI Career Assistant</h2>
     <p class="text-muted text-small" style="margin-bottom:20px">Ask anything about careers, skills, or study tips</p>
     <div id="chat-messages" style="min-height:200px;max-height:400px;overflow-y:auto;margin-bottom:16px;display:flex;flex-direction:column;gap:12px"></div>
     <div class="flex gap-sm">
-      <input type="text" id="chat-input" class="input" placeholder="e.g. How do I become a Data Scientist?" style="flex:1"/>
-      <button class="btn btn-primary" id="send-btn" onclick="sendMessage()">Send →</button>
+      <input type="text" id="chat-input" class="form-input" placeholder="e.g. How do I become a Data Scientist?" style="flex:1"/>
+      <button class="btn btn-primary" onclick="sendMessage()">Send →</button>
     </div>
     <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px">
       <button class="btn btn-ghost btn-sm" onclick="quickAsk('What skills do I need for Full Stack Development?')">Full Stack Skills</button>
@@ -35,23 +34,23 @@
     </div>
   </div>
 
-  <!-- Resume Builder -->
   <div class="card">
     <h2 style="margin-bottom:4px">📄 AI Resume Builder</h2>
     <p class="text-muted text-small" style="margin-bottom:20px">Generate a professional resume instantly</p>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <input type="text" id="r-name" class="input" placeholder="Full Name"/>
-      <input type="email" id="r-email" class="input" placeholder="Email Address"/>
-      <input type="text" id="r-education" class="input" placeholder="Education (e.g. B.Tech CSE, Pune University)"/>
-      <input type="text" id="r-skills" class="input" placeholder="Skills (comma separated: Python, React, SQL)"/>
-      <input type="text" id="r-goal" class="input" placeholder="Career Goal (e.g. Full Stack Developer)"/>
-      <textarea id="r-projects" class="input" rows="3" placeholder="Projects (describe briefly)"></textarea>
+      <input type="text" id="r-name" class="form-input" placeholder="Full Name"/>
+      <input type="email" id="r-email" class="form-input" placeholder="Email Address"/>
+      <input type="text" id="r-education" class="form-input" placeholder="Education (e.g. B.Tech CSE, Pune University)"/>
+      <input type="text" id="r-skills" class="form-input" placeholder="Skills (comma separated: Python, React, SQL)"/>
+      <input type="text" id="r-goal" class="form-input" placeholder="Career Goal (e.g. Full Stack Developer)"/>
+      <textarea id="r-projects" class="form-input" rows="3" placeholder="Projects (describe briefly)"></textarea>
       <button class="btn btn-primary" onclick="buildResume()">✨ Generate Resume</button>
     </div>
     <div id="resume-output" style="margin-top:20px"></div>
   </div>
 
 </main>
+<div class="toast-container"></div>
 <script src="js/api.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/auth.js"></script>
