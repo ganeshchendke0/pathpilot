@@ -33,6 +33,7 @@
   --grad-emerald:  linear-gradient(135deg, #10b981 0%, #22d3ee 100%);
 
   --text:        #f0f4ff;
+  --text-1:      #f0f4ff;
   --text-2:      #8892a4;
   --text-3:      #4a5568;
 
@@ -81,6 +82,7 @@
   --grad-emerald:  linear-gradient(135deg, #059669 0%, #0891b2 100%);
 
   --text:        #1f2937;
+  --text-1:      #1f2937;
   --text-2:      #6b7280;
   --text-3:      #9ca3af;
 
@@ -287,6 +289,10 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   align-items: center;
   gap: 9px;
   letter-spacing: -0.02em;
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .nav-brand-icon {
   width: 34px; height: 34px;
@@ -294,6 +300,9 @@ textarea.form-input { resize: vertical; min-height: 90px; }
   border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   font-size: 1.1rem;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+  background-clip: unset;
 }
 .nav-links { display: flex; align-items: center; gap: 2px; }
 .nav-link {

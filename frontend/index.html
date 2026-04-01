@@ -100,6 +100,7 @@
       transition: all 0.3s var(--ease-out); position: relative; overflow: hidden;
     }
     .feature-card:hover { border-color: rgba(99,102,241,0.3); transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+    .feature-card[role="button"] { cursor: pointer; }
     .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; opacity: 0; transition: opacity 0.3s; }
     .feature-card:hover::before { opacity: 1; }
     .fc-1::before { background: var(--grad-primary); }
@@ -266,7 +267,7 @@
             <h4>Pomodoro Focus Timer</h4>
             <p>25-minute deep work sessions with short and long breaks. Every session is automatically logged to your streak.</p>
           </div>
-          <div class="feature-card fc-3">
+          <div class="feature-card fc-3" role="button" onclick="handleQuizClick()" style="cursor:pointer">
             <div class="feature-icon fi-3">🔮</div>
             <h4>AI Career Quiz</h4>
             <p>Answer 6 questions about your interests and strengths. Get matched to your top career paths instantly.</p>
@@ -307,10 +308,27 @@
   <script src="js/utils.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    // Theme toggle button handler
-    document.getElementById('theme-toggle').addEventListener('click', (e) => {
-      e.preventDefault();
-      if (window.themeManager) window.themeManager.toggle();
+    function handleQuizClick() {
+      if (Auth.isLoggedIn()) {
+        window.location.href = "career.html";
+      } else {
+        showToast("Sign in to take the career quiz", "warning");
+        document.getElementById("auth").scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    
+    // Add keyboard support
+    document.addEventListener("DOMContentLoaded", () => {
+      const quizCard = document.querySelector(".feature-card.fc-3[onclick*='handleQuizClick']");
+      if (quizCard) {
+        quizCard.setAttribute("tabindex", "0");
+        quizCard.addEventListener("keypress", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleQuizClick();
+          }
+        });
+      }
     });
   </script>
 </body>

@@ -5,6 +5,147 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AI Assistant — PathPilot</title>
   <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    .ai-hero {
+      background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(34,211,238,0.06) 100%);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: var(--r-xl);
+      padding: 48px 32px;
+      text-align: center;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .ai-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(99,102,241,0.08) 0%, transparent 70%);
+    }
+    .ai-hero > * { position: relative; }
+    .ai-logo { font-size: 3.5rem; margin-bottom: 16px; display: inline-block; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .ai-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+    .ai-hero p { font-size: 1rem; color: var(--text-2); max-width: 600px; margin: 0 auto; }
+
+    .ai-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    
+    .ai-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .ai-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .ai-card-icon { font-size: 2rem; } 
+    .ai-card-title { font-size: 1.3rem; font-weight: 700; }
+    .ai-card-desc { font-size: 0.85rem; color: var(--text-2); }
+
+    .chat-box {
+      background: var(--surface-2);
+      border-radius: var(--r-lg);
+      padding: 16px;
+      min-height: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .chat-message {
+      padding: 12px 16px;
+      border-radius: 12px;
+      max-width: 90%;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      word-wrap: break-word;
+    }
+    .chat-message.user { 
+      background: var(--indigo);
+      color: #fff;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+    .chat-message.bot { 
+      background: var(--surface-3);
+      color: var(--text-1);
+      align-self: flex-start;
+    }
+    .chat-thinking { color: var(--text-2); font-style: italic; }
+
+    .quick-prompts {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .quick-btn {
+      padding: 10px 14px;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-2);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    .quick-btn:hover { background: var(--surface-2); border-color: var(--indigo); color: var(--indigo); }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .input-group input { flex: 1; }
+
+    .resume-form { display: flex; flex-direction: column; gap: 12px; }
+    .resume-form input, .resume-form textarea { 
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      background: var(--surface-2);
+      color: var(--text-1);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+    }
+    .resume-form input:focus, .resume-form textarea:focus {
+      outline: none;
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 2px rgba(99,102,241,0.1);
+    }
+
+    .resume-output {
+      background: var(--surface-2);
+      border-radius: var(--r-lg);
+      padding: 20px;
+      margin-top: 16px;
+    }
+    .resume-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .resume-header span { font-weight: 700; }
+    #resume-text {
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--text-1);
+    }
+
+    @media (max-width: 1024px) {
+      .ai-layout { grid-template-columns: 1fr; }
+      .ai-hero { padding: 36px 24px; }
+    }
+  </style>
 </head>
 <body>
 <nav class="navbar">
@@ -12,7 +153,7 @@
   <div class="nav-links">
     <a href="dashboard.html" class="nav-link">Dashboard</a>
     <a href="career.html" class="nav-link">Careers</a>
-    <a href="ai.html" class="nav-link active">🤖 AI</a>
+    <a href="ai.html" class="nav-link active">✨ AI</a>
     <button type="button" class="theme-toggle nav-link" id="theme-toggle" aria-label="Switch to light mode">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
     </button>
@@ -20,49 +161,85 @@
   </div>
 </nav>
 
-<main class="container" style="max-width:800px;padding-top:32px">
-
-  <div class="card" style="margin-bottom:24px">
-    <h2 style="margin-bottom:4px">🤖 AI Career Assistant</h2>
-    <p class="text-muted text-small" style="margin-bottom:20px">Ask anything about careers, skills, or study tips</p>
-    <div id="chat-messages" style="min-height:200px;max-height:400px;overflow-y:auto;margin-bottom:16px;display:flex;flex-direction:column;gap:12px"></div>
-    <div class="flex gap-sm">
-      <input type="text" id="chat-input" class="form-input" placeholder="e.g. How do I become a Data Scientist?" style="flex:1"/>
-      <button class="btn btn-primary" onclick="sendMessage()">Send →</button>
-    </div>
-    <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px">
-      <button class="btn btn-ghost btn-sm" onclick="quickAsk('What skills do I need for Full Stack Development?')">Full Stack Skills</button>
-      <button class="btn btn-ghost btn-sm" onclick="quickAsk('How to prepare for tech interviews in India?')">Interview Tips</button>
-      <button class="btn btn-ghost btn-sm" onclick="quickAsk('What is the salary of a Data Scientist in India?')">Data Science Salary</button>
-    </div>
+<main class="container" style="padding:32px 0">
+  
+  <!-- Hero Section -->
+  <div class="ai-hero">
+    <div class="ai-logo">✨</div>
+    <h1>AI Assistant</h1>
+    <p>Get instant career guidance, interview tips, and professional resume generation powered by AI</p>
   </div>
 
-  <div class="card">
-    <h2 style="margin-bottom:4px">📄 AI Resume Builder</h2>
-    <p class="text-muted text-small" style="margin-bottom:20px">Generate a professional resume instantly</p>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <input type="text" id="r-name" class="form-input" placeholder="Full Name"/>
-      <input type="email" id="r-email" class="form-input" placeholder="Email Address"/>
-      <input type="text" id="r-education" class="form-input" placeholder="Education (e.g. B.Tech CSE, Pune University)"/>
-      <input type="text" id="r-skills" class="form-input" placeholder="Skills (comma separated: Python, React, SQL)"/>
-      <input type="text" id="r-goal" class="form-input" placeholder="Career Goal (e.g. Full Stack Developer)"/>
-      <textarea id="r-projects" class="form-input" rows="3" placeholder="Projects (describe briefly)"></textarea>
-      <button class="btn btn-primary" onclick="buildResume()">✨ Generate Resume</button>
+  <!-- Two Column Layout -->
+  <div class="ai-layout">
+    
+    <!-- Chat Assistant Card -->
+    <div class="ai-card">
+      <div class="ai-card-header">
+        <div class="ai-card-icon">💬</div>
+        <div>
+          <div class="ai-card-title">Career Chat</div>
+          <div class="ai-card-desc">Ask anything about careers</div>
+        </div>
+      </div>
+      
+      <div class="chat-box" id="chat-messages"></div>
+      
+      <div class="input-group">
+        <input type="text" id="chat-input" class="form-input" placeholder="Ask about careers, skills, or opportunities..."/>
+        <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+      </div>
+
+      <div class="quick-prompts">
+        <div style="font-size:0.8rem;font-weight:600;color:var(--text-3)">Quick Prompts:</div>
+        <button class="quick-btn" onclick="quickAsk('What are the top programming languages to learn in 2025?')">Top Languages</button>
+        <button class="quick-btn" onclick="quickAsk('How do I prepare for tech interviews?')">Interview Prep</button>
+        <button class="quick-btn" onclick="quickAsk('What is the salary range for a Full Stack Developer?')">Salary Info</button>
+        <button class="quick-btn" onclick="quickAsk('How can I transition to a data science career?')">Career Switch</button>
+      </div>
     </div>
-    <div id="resume-output" style="margin-top:20px"></div>
+
+    <!-- Resume Builder Card -->
+    <div class="ai-card">
+      <div class="ai-card-header">
+        <div class="ai-card-icon">📄</div>
+        <div>
+          <div class="ai-card-title">Resume Builder</div>
+          <div class="ai-card-desc">Generate professional resume</div>
+        </div>
+      </div>
+
+      <form class="resume-form" onsubmit="event.preventDefault(); buildResume()">
+        <input type="text" id="r-name" placeholder="Full Name" required/>
+        <input type="email" id="r-email" placeholder="Email Address" required/>
+        <input type="text" id="r-education" placeholder="Education (e.g. B.Tech CSE, IIT)"/>
+        <input type="text" id="r-skills" placeholder="Skills (e.g. Python, React, Node.js)"/>
+        <input type="text" id="r-goal" placeholder="Career Goal (e.g. Full Stack Developer)" required/>
+        <textarea id="r-projects" rows="3" placeholder="Projects (describe briefly)"></textarea>
+        <button type="submit" class="btn btn-primary">✨ Generate Resume</button>
+      </form>
+
+      <div id="resume-output"></div>
+    </div>
+
   </div>
 
 </main>
+
 <div class="toast-container"></div>
 <script src="js/api.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/utils.js"></script>
-<script src="js/auth.js"></script>
 <script src="js/ai.js"></script>
 <script>
-  document.getElementById('theme-toggle').addEventListener('click', (e) => {
+  // Setup theme toggle and logout button
+  document.getElementById("theme-toggle")?.addEventListener("click", (e) => {
     e.preventDefault();
     if (window.themeManager) window.themeManager.toggle();
+  });
+
+  document.getElementById("logout-btn")?.addEventListener("click", () => {
+    Auth.logout();
   });
 </script>
 </body>
