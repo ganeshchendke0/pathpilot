@@ -1,17 +1,34 @@
 import os
 import json
 from config.db import query
+from dotenv import load_dotenv
 
-# ❌ REMOVE Gemini (causing all errors)
-# import google.generativeai as genai
+# ✅ Load env
+load_dotenv()
 
-# ❌ REMOVE these lines
-# genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-# model = genai.GenerativeModel("gemini-pro")
+# ✅ Gemini SDK
+try:
+    import google.generativeai as genai
+    
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+    model = genai.GenerativeModel("gemini-1.5-pro")
+    GEMINI_ENABLED = True
+    print("✅ Gemini connected successfully")
+
+except Exception as e:
+    print(f"⚠️ Gemini API not available: {e}")
+    GEMINI_ENABLED = False
 
 
-# ✅ SAFE AI FUNCTION (NO API NEEDED)
+# ✅ SMART AI FUNCTION
 def safe_generate(prompt):
+    if GEMINI_ENABLED:
+        try:
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            print(f"⚠️ Gemini error: {e}. Using fallback...")
+
     print("AI fallback used")
 
     prompt_lower = prompt.lower()
@@ -43,17 +60,16 @@ To become a skilled Full Stack Developer and contribute to innovative projects.
 
     # ✅ Weekly Report
     elif "weekly" in prompt_lower or "report" in prompt_lower:
-        return "Great progress this week! You stayed consistent with your goals and learning. Keep improving your skills daily, take breaks when needed, and stay focused. You're on the right path!"
+        return "Great progress this week! You stayed consistent with your goals and learning. Keep improving your skills daily, take breaks when needed, and stay focused."
 
     # ✅ Roadmap
     elif "roadmap" in prompt_lower:
         return json.dumps([
             {"week_number": 1, "title": "Week 1: Basics", "description": "Learn fundamentals", "resources": ["YouTube", "Docs"]},
-            {"week_number": 2, "title": "Week 2: Practice", "description": "Build small projects", "resources": ["GitHub"]},
+            {"week_number": 2, "title": "Week 2: Practice", "description": "Build projects", "resources": ["GitHub"]},
             {"week_number": 3, "title": "Week 3: Advanced", "description": "Learn advanced topics", "resources": ["Courses"]}
         ])
 
-    # Default
     return "AI is currently unavailable. Please try again later."
 
 
@@ -76,7 +92,7 @@ Skills: {data.get('skills')}
     return safe_generate(prompt)
 
 
-# ✅ 3. Career Match Scoring (STATIC — NO AI)
+# ✅ 3. Career Match Scoring
 def score_career_matches(tags):
     return [
         {"career_path_id": "1", "title": "Full Stack Developer", "field": "Technology", "score": 90},
@@ -85,7 +101,7 @@ def score_career_matches(tags):
     ]
 
 
-# ✅ 4. Skill Gap Analysis (Already perfect)
+# ✅ 4. Skill Gap Analysis
 def skill_gap_analysis(user_skills, career_id):
     try:
         rows = query("SELECT required_skills FROM career_paths WHERE id=%s", (career_id,))

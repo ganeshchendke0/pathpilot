@@ -1,8 +1,8 @@
 import jwt
 import bcrypt
-from utils.ai_engine import ask_career_question, generate_resume
+from utils.ai_engine import ask_career_question, generate_resume, generate_resume_pdf
 from datetime import datetime, timedelta
-from flask import request, jsonify
+from flask import request, jsonify, send_file
 from config import Config
 from models.models import (
     UserModel, GoalModel, CareerModel, FocusModel,
@@ -284,6 +284,37 @@ def build_resume():
         return jsonify({"error": "No data provided"}), 400
     try:
         resume = generate_resume(data)
-        return jsonify({"resume": resume})
+        return jsonify({"resume": resume, "pdf_ready": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ── Download Resume PDF ───────────────────────
+def download_resume():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        print(f"Generating PDF for: {data.get('name')}")
+        pdf_buffer = generate_resume_pdf(data)
+        
+        if pdf_buffer is None:
+            print("PDF buffer is None")
+            return jsonify({"error": "Failed to generate PDF"}), 500
+        
+        name = data.get('name', 'resume').replace(' ', '_')
+        filename = f"{name}_resume.pdf"
+        
+        print(f"Sending PDF file: {filename}")
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=filename,
+            cache_timeout=0
+        )
+    except Exception as e:
+        print(f"Error in download_resume: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Server error: {str(e)}"}), 500

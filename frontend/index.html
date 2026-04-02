@@ -86,6 +86,26 @@
     .tab-btn.active { background: var(--surface-3); color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
     .auth-form { display: flex; flex-direction: column; gap: 16px; }
 
+    .password-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      color: var(--text-3);
+      transition: color 0.2s;
+      padding: 0;
+    }
+    .password-toggle:hover { color: var(--text-2); }
+    .password-toggle svg { width: 18px; height: 18px; stroke: currentColor; }
+
     .features-section { padding: 100px 0; }
     .features-label {
       text-align: center; font-size: 0.78rem; font-weight: 700;
@@ -220,7 +240,13 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Password</label>
-                <input id="l-pw" type="password" class="form-input" placeholder="••••••••" required/>
+                <div style="position: relative;">
+                  <input id="l-pw" type="password" class="form-input" placeholder="••••••••" required/>
+                  <button type="button" class="password-toggle" data-target="l-pw" aria-label="Toggle password visibility">
+                    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <svg class="eye-off-icon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                  </button>
+                </div>
               </div>
               <button type="submit" class="btn btn-primary btn-lg w-full">Sign In →</button>
             </form>
@@ -235,7 +261,13 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Password</label>
-                <input id="r-pw" type="password" class="form-input" placeholder="At least 6 characters" required/>
+                <div style="position: relative;">
+                  <input id="r-pw" type="password" class="form-input" placeholder="At least 6 characters" required/>
+                  <button type="button" class="password-toggle" data-target="r-pw" aria-label="Toggle password visibility">
+                    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <svg class="eye-off-icon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                  </button>
+                </div>
               </div>
               <button type="submit" class="btn btn-primary btn-lg w-full">Create Account 🚀</button>
               <p class="text-small text-muted text-center" style="margin-top:4px">Free forever. No credit card needed.</p>
@@ -317,8 +349,29 @@
       }
     }
     
-    // Add keyboard support
+    // Password toggle functionality
     document.addEventListener("DOMContentLoaded", () => {
+      const passwordToggles = document.querySelectorAll(".password-toggle");
+      passwordToggles.forEach(toggle => {
+        toggle.addEventListener("click", (e) => {
+          e.preventDefault();
+          const targetId = toggle.dataset.target;
+          const input = document.getElementById(targetId);
+          const eyeIcon = toggle.querySelector(".eye-icon");
+          const eyeOffIcon = toggle.querySelector(".eye-off-icon");
+          
+          if (input.type === "password") {
+            input.type = "text";
+            eyeIcon.style.display = "none";
+            eyeOffIcon.style.display = "block";
+          } else {
+            input.type = "password";
+            eyeIcon.style.display = "block";
+            eyeOffIcon.style.display = "none";
+          }
+        });
+      });
+
       const quizCard = document.querySelector(".feature-card.fc-3[onclick*='handleQuizClick']");
       if (quizCard) {
         quizCard.setAttribute("tabindex", "0");

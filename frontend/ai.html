@@ -212,10 +212,16 @@
       <form class="resume-form" onsubmit="event.preventDefault(); buildResume()">
         <input type="text" id="r-name" placeholder="Full Name" required/>
         <input type="email" id="r-email" placeholder="Email Address" required/>
-        <input type="text" id="r-education" placeholder="Education (e.g. B.Tech CSE, IIT)"/>
-        <input type="text" id="r-skills" placeholder="Skills (e.g. Python, React, Node.js)"/>
-        <input type="text" id="r-goal" placeholder="Career Goal (e.g. Full Stack Developer)" required/>
-        <textarea id="r-projects" rows="3" placeholder="Projects (describe briefly)"></textarea>
+        <input type="tel" id="r-phone" placeholder="Phone Number (e.g. +91-9876543210)"/>
+        <input type="text" id="r-location" placeholder="Location (e.g. Bangalore, India)"/>
+        <textarea id="r-summary" rows="2" placeholder="Professional Summary (2-3 lines about yourself)"></textarea>
+        <input type="text" id="r-education" placeholder="Education (e.g. B.Tech CSE, IIT Delhi)"/>
+        <textarea id="r-experience" rows="2" placeholder="Professional Experience (role, company, duration)"></textarea>
+        <input type="text" id="r-skills" placeholder="Skills (e.g. Python, React, Node.js, SQL)" required/>
+        <textarea id="r-projects" rows="2" placeholder="Projects & Achievements (describe your key projects)"></textarea>
+        <input type="text" id="r-certifications" placeholder="Certifications (optional)"/>
+        <input type="text" id="r-languages" placeholder="Languages (e.g. English, Hindi)"/>
+        <input type="text" id="r-objective" placeholder="Career Objective" required/>
         <button type="submit" class="btn btn-primary">✨ Generate Resume</button>
       </form>
 

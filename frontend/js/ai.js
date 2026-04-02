@@ -77,29 +77,40 @@ function removeThinking() {
 }
 
 async function buildResume() {
-  const name      = document.getElementById("r-name").value.trim();
-  const email     = document.getElementById("r-email").value.trim();
-  const education = document.getElementById("r-education").value.trim();
-  const skills    = document.getElementById("r-skills").value.trim().split(",").map(s => s.trim());
-  const goal      = document.getElementById("r-goal").value.trim();
-  const projects  = document.getElementById("r-projects").value.trim();
+  const name            = document.getElementById("r-name").value.trim();
+  const email           = document.getElementById("r-email").value.trim();
+  const phone           = document.getElementById("r-phone").value.trim();
+  const location        = document.getElementById("r-location").value.trim();
+  const summary         = document.getElementById("r-summary").value.trim();
+  const education       = document.getElementById("r-education").value.trim();
+  const experience      = document.getElementById("r-experience").value.trim();
+  const skills          = document.getElementById("r-skills").value.trim();
+  const projects        = document.getElementById("r-projects").value.trim();
+  const certifications  = document.getElementById("r-certifications").value.trim();
+  const languages       = document.getElementById("r-languages").value.trim();
+  const objective       = document.getElementById("r-objective").value.trim();
 
-  if (!name || !email || !goal) {
-    showToast("Please fill Name, Email and Career Goal", "warning");
+  if (!name || !email || !skills || !objective) {
+    showToast("Please fill Name, Email, Skills, and Career Objective", "warning");
     return;
   }
 
   const output = document.getElementById("resume-output");
-  output.innerHTML = `<p class="text-muted">✨ Generating your resume...</p>`;
+  output.innerHTML = `<p class="text-muted">✨ Generating your professional resume...</p>`;
 
   try {
+    const resumeData = {
+      name, email, phone, location, summary, education,
+      experience, skills, projects, certifications, languages, objective
+    };
+
     const res = await fetch(`${BASE_URL}/ai/resume`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem("pp_token")}`
       },
-      body: JSON.stringify({ name, email, education, skills, career_goal: goal, projects })
+      body: JSON.stringify(resumeData)
     });
     const data = await res.json();
     
@@ -119,11 +130,17 @@ async function buildResume() {
       return;
     }
     
+    // Store resume data for PDF generation
+    window.currentResumeData = resumeData;
+    
     output.innerHTML = `
       <div class="resume-output">
         <div class="resume-header">
           <span>✅ Your Professional Resume</span>
-          <button class="btn btn-ghost btn-sm" onclick="copyResume()">📋 Copy</button>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-ghost btn-sm" onclick="copyResume()">📋 Copy</button>
+            <button class="btn btn-primary btn-sm" onclick="downloadResumeAsPDF()">📥 Download PDF</button>
+          </div>
         </div>
         <div id="resume-text">${data.resume || data.response}</div>
       </div>`;
@@ -138,5 +155,71 @@ function copyResume() {
   if (text) {
     navigator.clipboard.writeText(text);
     showToast("📋 Resume copied to clipboard!", "success");
+  }
+}
+
+async function downloadResumeAsPDF() {
+  if (!window.currentResumeData) {
+    showToast("Please generate resume first", "warning");
+    return;
+  }
+
+  try {
+    showToast("📥 Generating PDF...", "info");
+    console.log("Downloading PDF for:", window.currentResumeData.name);
+    
+    const res = await fetch(`${BASE_URL}/ai/resume/download`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("pp_token")}`
+      },
+      body: JSON.stringify(window.currentResumeData)
+    });
+
+    console.log("Response status:", res.status);
+    console.log("Response type:", res.type);
+    console.log("Content-Type:", res.headers.get('content-type'));
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Error response:", errorText);
+      try {
+        const errorData = JSON.parse(errorText);
+        showToast(`❌ Error: ${errorData.error || 'Failed to generate PDF'}`, "error");
+      } catch {
+        showToast(`❌ Server error (${res.status})`, "error");
+      }
+      return;
+    }
+
+    // Get the blob
+    const blob = await res.blob();
+    console.log("Blob size:", blob.size, "bytes");
+    
+    if (blob.size === 0) {
+      showToast("❌ PDF is empty", "error");
+      return;
+    }
+
+    // Create download link
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${window.currentResumeData.name.replace(/\s+/g, "_")}_resume.pdf`;
+    
+    console.log("Downloading as:", link.download);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up
+    setTimeout(() => window.URL.revokeObjectURL(url), 100);
+    
+    showToast("✅ Resume downloaded successfully!", "success");
+  } catch (err) {
+    console.error("PDF download error:", err);
+    showToast(`❌ Error: ${err.message}`, "error");
   }
 }

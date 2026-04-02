@@ -17,7 +17,7 @@ from controllers.controllers import (
     get_notifications, mark_read,
     # AI
     quiz_questions, quiz_submit, weekly_report,
-    ai_chat, build_resume,
+    ai_chat, build_resume, download_resume,
 
     # Roadmap
     get_roadmaps, create_roadmap, toggle_milestone,
@@ -77,6 +77,7 @@ ai_bp.route("/quiz-submit",    methods=["POST"])(token_required(quiz_submit))
 ai_bp.route("/weekly-report",  methods=["GET"])(token_required(weekly_report))
 ai_bp.route("/chat",   methods=["POST"])(token_required(ai_chat))
 ai_bp.route("/resume", methods=["POST"])(token_required(build_resume))
+ai_bp.route("/resume/download", methods=["POST"])(token_required(download_resume))
 
 # ── Roadmap ───────────────────────────────────────────────────
 roadmap_bp = Blueprint("roadmap", __name__, url_prefix="/api/roadmap")

@@ -12,6 +12,7 @@ def add_cors(response):
     response.headers["Access-Control-Allow-Origin"]  = "*"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    response.headers["Access-Control-Expose-Headers"] = "Content-Disposition, Content-Type, Content-Length"
     return response
 
 app.after_request(add_cors)
