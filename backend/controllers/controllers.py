@@ -310,8 +310,7 @@ def download_resume():
             pdf_buffer,
             mimetype='application/pdf',
             as_attachment=True,
-            download_name=filename,
-            cache_timeout=0
+            download_name=filename
         )
     except Exception as e:
         print(f"Error in download_resume: {str(e)}")
