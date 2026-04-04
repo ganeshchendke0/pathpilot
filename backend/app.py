@@ -30,7 +30,7 @@ for bp in [auth_bp, goals_bp, career_bp, focus_bp,
            wellness_bp, lb_bp, notif_bp, ai_bp, roadmap_bp]:
     app.register_blueprint(bp)
 
-@app.route("/api/health")
+@app.route("/api/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok", "version": "2.0", "app": "PathPilot"}), 200
 
@@ -43,4 +43,6 @@ def server_error(e):
     return jsonify({"error": "Internal server error", "detail": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=Config.DEBUG, port=Config.PORT, host="0.0.0.0")
+    # In development, use 127.0.0.1; in production, set HOST env var
+    host = Config.HOST if hasattr(Config, 'HOST') else "127.0.0.1"
+    app.run(debug=Config.DEBUG, port=Config.PORT, host=host)

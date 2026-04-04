@@ -13,3 +13,4 @@ class Config:
     JWT_EXPIRY  = int(os.getenv("JWT_EXPIRY_HOURS", 24))
     DEBUG       = os.getenv("DEBUG", "True") == "True"
     PORT        = int(os.getenv("PORT", 5000))
+    HOST        = os.getenv("HOST", "127.0.0.1")  # Default to localhost for security

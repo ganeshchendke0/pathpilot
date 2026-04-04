@@ -119,31 +119,300 @@
     }
 
     .resume-output {
-      background: var(--surface-2);
-      border-radius: var(--r-lg);
-      padding: 20px;
-      margin-top: 16px;
+      margin-top: 20px;
     }
-    .resume-header {
+    .resume-card {
+      background: #ffffff;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .resume-card .resume-header {
+      padding: 32px 34px 16px;
+      background: #ffffff;
+    }
+    .resume-name {
+      margin: 0;
+      font-size: 2.4rem;
+      letter-spacing: -0.04em;
+      color: #111827;
+    }
+    .resume-title {
+      margin: 10px 0 0;
+      font-size: 1rem;
+      color: #4b5563;
+      font-weight: 600;
+    }
+    .resume-contact-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px 24px;
+      margin-top: 24px;
+      color: #6b7280;
+      font-size: 0.95rem;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 18px;
+    }
+    .resume-contact-row div {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
+      gap: 10px;
     }
-    .resume-header span { font-weight: 700; }
-    #resume-text {
-      white-space: pre-wrap;
-      font-family: monospace;
-      font-size: 0.85rem;
+    .resume-body {
+      padding: 28px 34px 32px;
+    }
+    .resume-section {
+      margin-bottom: 30px;
+    }
+    .resume-section-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #111827;
+      margin-bottom: 18px;
+      font-weight: 700;
+    }
+    .resume-text {
+      color: #374151;
+      line-height: 1.75;
+      font-size: 0.95rem;
+    }
+    .resume-entry {
+      margin-bottom: 18px;
+    }
+    .resume-entry-title {
+      font-size: 1rem;
+      color: #111827;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .resume-entry-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: #6b7280;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+    }
+    .resume-entry-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .resume-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .resume-list li {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: #374151;
       line-height: 1.7;
-      color: var(--text-1);
+      font-size: 0.95rem;
+    }
+    .resume-list li::before {
+      content: '•';
+      color: #111827;
+      font-size: 1rem;
+      line-height: 1em;
+      margin-top: 4px;
+    }
+    .resume-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .resume-skill-pill {
+      background: #f3f4f6;
+      color: #111827;
+      padding: 8px 12px;
+      border-radius: 9999px;
+      border: 1px solid #e5e7eb;
+      font-size: 0.88rem;
+    }
+    .resume-horizontal-rule {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 0;
+    }
+    @media (max-width: 768px) {
+      .resume-card {
+        border-radius: 18px;
+      }
+      .resume-header {
+        padding: 24px 22px 14px;
+      }
+      .resume-body {
+        padding: 22px;
+      }
     }
 
-    @media (max-width: 1024px) {
+    .resume-output-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .resume-output-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: var(--text-1);
+      font-weight: 600;
+    }
+    .resume-output-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .resume-template {
+      padding: 20px;
+      border-radius: 28px;
+      background: linear-gradient(180deg, #eef2f7 0%, #e7ebf1 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+    .resume-template-page {
+      background: #ffffff;
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 78px 84px 0;
+      box-shadow: 0 28px 60px rgba(15, 23, 42, 0.14);
+    }
+    .resume-template-header {
+      text-align: center;
+      padding-bottom: 12px;
+    }
+    .resume-template-name {
+      margin: 0;
+      font-size: clamp(2.4rem, 4.6vw, 3.5rem);
+      line-height: 1;
+      letter-spacing: 0.06em;
+      font-weight: 800;
+      color: #232126;
+      text-transform: uppercase;
+    }
+    .resume-template-role {
+      margin-top: 12px;
+      font-size: 1.2rem;
+      color: #4b4b52;
+      font-weight: 500;
+    }
+    .resume-template-contact {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+      padding: 0 4px 12px;
+      border-bottom: 1px solid #656268;
+      color: #5b5a60;
+      font-size: 0.98rem;
+    }
+    .resume-template-contact-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .resume-template-contact-icon {
+      width: 18px;
+      text-align: center;
+      color: #262429;
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .resume-template-section {
+      padding: 18px 0 22px;
+    }
+    .resume-template-section-head {
+      margin-bottom: 14px;
+    }
+    .resume-template-section-title {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #232126;
+    }
+    .resume-template-divider {
+      height: 1px;
+      background: #656268;
+    }
+    .resume-template-text,
+    .resume-template-entry-text,
+    .resume-template-list li,
+    .resume-template-skill-column li,
+    .resume-template-empty {
+      margin: 0;
+      font-size: 0.98rem;
+      line-height: 1.7;
+      color: #4b4b52;
+    }
+    .resume-template-entry {
+      margin-bottom: 18px;
+    }
+    .resume-template-entry:last-child {
+      margin-bottom: 0;
+    }
+    .resume-template-meta {
+      margin-bottom: 4px;
+      color: #6a6870;
+      font-size: 0.98rem;
+    }
+    .resume-template-entry-title {
+      margin-bottom: 4px;
+      color: #232126;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+    .resume-template-list,
+    .resume-template-skill-column {
+      margin: 0;
+      padding-left: 22px;
+    }
+    .resume-template-list li,
+    .resume-template-skill-column li {
+      margin-bottom: 6px;
+    }
+    .resume-template-skills-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px 28px;
+    }
+    .resume-template-empty {
+      color: #77737a;
+    }
+    .resume-template-footer-bar {
+      height: 34px;
+      margin-top: 10px;
+      background: #6f6a6b;
+    }
+
+    @media (max-width: 640px) {
       .ai-layout { grid-template-columns: 1fr; }
       .ai-hero { padding: 36px 24px; }
+      .resume-template {
+        padding: 12px;
+        border-radius: 20px;
+      }
+      .resume-template-page {
+        padding: 40px 22px 0;
+      }
+      .resume-template-contact {
+        justify-content: center;
+        gap: 12px 18px;
+      }
+      .resume-template-skills-grid {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
     }
   </style>
 </head>
@@ -215,17 +484,19 @@
         <input type="tel" id="r-phone" placeholder="Phone Number (e.g. +91-9876543210)"/>
         <input type="text" id="r-location" placeholder="Location (e.g. Bangalore, India)"/>
         <textarea id="r-summary" rows="2" placeholder="Professional Summary (2-3 lines about yourself)"></textarea>
-        <input type="text" id="r-education" placeholder="Education (e.g. B.Tech CSE, IIT Delhi)"/>
-        <textarea id="r-experience" rows="2" placeholder="Professional Experience (role, company, duration)"></textarea>
+        <textarea id="r-education" rows="2" placeholder="Education entries, one per line (e.g. B.Tech CSE, IIT Delhi | 2020 - 2024)"></textarea>
+        <textarea id="r-experience" rows="3" placeholder="Professional experience entries, one per line (e.g. Software Engineer, Acme Corp | 2024 - Present)"></textarea>
         <input type="text" id="r-skills" placeholder="Skills (e.g. Python, React, Node.js, SQL)" required/>
-        <textarea id="r-projects" rows="2" placeholder="Projects & Achievements (describe your key projects)"></textarea>
-        <input type="text" id="r-certifications" placeholder="Certifications (optional)"/>
-        <input type="text" id="r-languages" placeholder="Languages (e.g. English, Hindi)"/>
+        <textarea id="r-projects" rows="3" placeholder="Projects & achievements, one per line"></textarea>
+        <textarea id="r-certifications" rows="2" placeholder="Certifications, one per line (optional)"></textarea>
+        <textarea id="r-languages" rows="2" placeholder="Languages (e.g. English, Hindi)"></textarea>
         <input type="text" id="r-objective" placeholder="Career Objective" required/>
         <button type="submit" class="btn btn-primary">✨ Generate Resume</button>
       </form>
 
-      <div id="resume-output"></div>
+      <div id="resume-output" class="resume-output">
+        <div class="text-muted">Your resume preview will appear here after generation.</div>
+      </div>
     </div>
 
   </div>

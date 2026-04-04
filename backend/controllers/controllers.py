@@ -1,7 +1,7 @@
 import jwt
 import bcrypt
 from utils.ai_engine import ask_career_question, generate_resume, generate_resume_pdf
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask import request, jsonify, send_file
 from config import Config
 from models.models import (
@@ -16,7 +16,7 @@ from utils.ai_engine import (
 
 def _token(uid, role):
     return jwt.encode(
-        {"user_id": uid, "role": role, "exp": datetime.utcnow() + timedelta(hours=Config.JWT_EXPIRY)},
+        {"user_id": uid, "role": role, "exp": datetime.now(timezone.utc) + timedelta(hours=Config.JWT_EXPIRY)},
         Config.SECRET_KEY, algorithm="HS256")
 
 # ═══════════════════════════════════════════

@@ -1,6 +1,7 @@
 import os
 import json
 import io
+import re
 from datetime import datetime
 from config.db import query
 from dotenv import load_dotenv
@@ -9,56 +10,93 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
+from xml.sax.saxutils import escape
 
 # ✅ Load env
 load_dotenv()
 
 # ✅ Gemini SDK
+GEMINI_ENABLED = False
+model = None
 try:
-    import google.generativeai as genai
-    
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-    model = genai.GenerativeModel("gemini-pro")
-    GEMINI_ENABLED = True
-    print("✅ Gemini connected successfully")
+    try:
+        import google.generativeai as genai
+    except ImportError:
+        from google import genai
 
+    api_key = os.getenv("GEMINI_API_KEY")
+    if api_key:
+        genai.configure(api_key=api_key)
+        try:
+            model = genai.GenerativeModel("gemini-1.5-flash")
+        except AttributeError:
+            # support older/newer API wrappers
+            model = None
+        GEMINI_ENABLED = True
+        print("✅ Gemini connected successfully")
+    else:
+        print("⚠️ GEMINI_API_KEY not set in environment")
+
+except ImportError:
+    print("⚠️ google-generativeai package not installed")
 except Exception as e:
     print(f"⚠️ Gemini API not available: {e}")
-    GEMINI_ENABLED = False
 
 
-# ✅ SMART AI FUNCTION
+# ✅ SMART AI FUNCTION - Fixed
 def safe_generate(prompt):
-    if GEMINI_ENABLED:
-        try:
-            response = model.generate_content(prompt)
+    """Generate content using Gemini with fallback"""
+    try:
+        if not GEMINI_ENABLED:
+            return fallback_response(prompt)
+        
+        response = model.generate_content(prompt)
+        
+        # ✅ Extract text properly
+        if response and response.text:
             return response.text
-        except Exception as e:
-            print(f"⚠️ Gemini error: {e}. Using fallback...")
+        
+        return fallback_response(prompt)
 
-    print("AI fallback used")
+    except Exception as e:
+        print(f"⚠️ Gemini error: {e}")
+        return fallback_response(prompt)
 
+
+def fallback_response(prompt):
+    """Fallback responses when Gemini unavailable"""
     prompt_lower = prompt.lower()
 
     # ✅ Resume Generator
     if "resume" in prompt_lower:
         return """Name: Student
 Email: student@email.com
+Phone: +91-9876543210
+Location: Bangalore, India
+
+Objective:
+To launch a career in software development by building strong technical foundations and working on real-world projects.
 
 Summary:
-Motivated and enthusiastic student with a strong interest in software development.
+Motivated and detail-oriented professional with experience in developing web applications and delivering customer-focused solutions.
 
 Education:
 Bachelor's Degree in Computer Science
 
+Experience:
+Software Developer Intern, Example Corp | 2023 - Present
+
 Skills:
-Python, HTML, CSS, JavaScript
+Python, JavaScript, HTML, CSS, React
 
 Projects:
-Career Guidance Web App
+Developed a career guidance web app that helps students discover growth paths.
 
-Career Objective:
-To become a skilled Full Stack Developer and contribute to innovative projects.
+Certifications:
+Certified Web Developer
+
+Languages:
+English, Hindi
 """
 
     # ✅ Career Chat
@@ -82,234 +120,480 @@ To become a skilled Full Stack Developer and contribute to innovative projects.
 
 # ✅ 1. Career Chat
 def ask_career_question(question, context=""):
-    prompt = f"""
-You are PathPilot AI — a friendly career advisor.
+    """Ask AI a career question"""
+    prompt = f"""You are PathPilot AI — a friendly career advisor for Indian students.
+Answer this question helpfully and concisely:
+
 Question: {question}
-"""
+Context: {context if context else 'General career advice'}
+
+Provide actionable and practical advice."""
     return safe_generate(prompt)
 
 
 # ✅ 2. Resume Generator
 def generate_resume(data):
-    prompt = f"""
-Generate resume:
+    """Generate resume text using AI"""
+    prompt = f"""Generate a professional resume using the information below.
+Include the following sections: PROFILE, EDUCATION, EXPERIENCE, SKILLS, PROJECTS, CERTIFICATIONS, LANGUAGES.
+Use a clean, modern resume style.
+
 Name: {data.get('name')}
+Email: {data.get('email')}
+Phone: {data.get('phone')}
+Location: {data.get('location')}
+Objective: {data.get('objective')}
+Summary: {data.get('summary')}
+Education: {data.get('education')}
+Experience: {data.get('experience')}
 Skills: {data.get('skills')}
-"""
+Projects: {data.get('projects')}
+Certifications: {data.get('certifications')}
+Languages: {data.get('languages')}
+
+Keep the format readable and suitable for a one-page resume."""
     return safe_generate(prompt)
 
 
-# ✅ 2B. Resume Generator (PDF) - Professional Two-Column Format
+def _get_pdf_styles(styles):
+    """Helper function to create and return all PDF paragraph styles"""
+    sidebar_heading = ParagraphStyle(
+        'SidebarHeading',
+        parent=styles['Heading2'],
+        fontSize=10.5,
+        textColor=colors.HexColor('#ffffff'),
+        fontName='Helvetica-Bold',
+        spaceAfter=8,
+        spaceBefore=6
+    )
+    sidebar_text = ParagraphStyle(
+        'SidebarText',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=colors.HexColor('#e5e7eb'),
+        leading=11,
+        spaceAfter=4
+    )
+    main_name = ParagraphStyle(
+        'MainName',
+        parent=styles['Heading1'],
+        fontSize=28,
+        textColor=colors.HexColor('#1f2937'),
+        fontName='Helvetica-Bold',
+        spaceAfter=0
+    )
+    main_title = ParagraphStyle(
+        'MainTitle',
+        parent=styles['Normal'],
+        fontSize=11,
+        textColor=colors.HexColor('#6b7280'),
+        spaceAfter=8,
+        fontName='Helvetica'
+    )
+    section_heading = ParagraphStyle(
+        'SectionHead',
+        parent=styles['Heading2'],
+        fontSize=10,
+        textColor=colors.HexColor('#1f2937'),
+        fontName='Helvetica-Bold',
+        spaceAfter=6,
+        spaceBefore=4,
+        borderBottomColor=colors.HexColor('#4f46e5'),
+        borderBottomWidth=1.5,
+        borderPadding=3
+    )
+    body_text = ParagraphStyle(
+        'BodyText',
+        parent=styles['Normal'],
+        fontSize=8.5,
+        textColor=colors.HexColor('#374151'),
+        leading=11,
+        spaceAfter=4
+    )
+    return sidebar_heading, sidebar_text, main_name, main_title, section_heading, body_text
+
+
+def _add_list_section(content, title, data, heading_style, text_style):
+    """Helper to add a bulleted list section"""
+    if not data:
+        return
+    content.append(Paragraph(title, heading_style))
+    items = str(data).split(',') if data else []
+    for item in items:
+        item_clean = item.strip()
+        if item_clean:
+            content.append(Paragraph(f"• {item_clean}", text_style))
+    content.append(Spacer(1, 0.1*inch))
+
+
+def _add_section(content, title, data, heading_style, text_style, split_char=None):
+    """Helper to add a text section"""
+    if not data:
+        return
+    content.append(Paragraph(title, heading_style))
+    if split_char:
+        for line in str(data).split(split_char):
+            if line.strip():
+                content.append(Paragraph(line.strip(), text_style))
+    else:
+        content.append(Paragraph(str(data), text_style))
+    content.append(Spacer(1, 0.06*inch))
+
+
+def _add_projects_section(content, projects, heading_style, text_style):
+    """Helper to add projects section"""
+    if not projects:
+        return
+    content.append(Paragraph("PROJECTS", heading_style))
+    for proj in str(projects).split('•'):
+        proj_clean = proj.strip()
+        if proj_clean:
+            content.append(Paragraph(f"• {proj_clean}", text_style))
+    content.append(Spacer(1, 0.06*inch))
+
+
+def _add_certifications_section(content, certifications, heading_style, text_style):
+    """Helper to add certifications section"""
+    if certifications and 'TOOLS' not in str(certifications).upper():
+        content.append(Paragraph("CERTIFICATIONS", heading_style))
+        content.append(Paragraph(str(certifications), text_style))
+        content.append(Spacer(1, 0.06*inch))
+
+
+def _build_left_content(data, sidebar_heading, sidebar_text):
+    """Helper function to build left sidebar content"""
+    left_content = []
+    left_content.append(Paragraph("CONTACT", sidebar_heading))
+    email = data.get('email', 'email@example.com')
+    phone = data.get('phone', '+91-XXXXXXXXXX')
+    location = data.get('location', 'India')
+    left_content.append(Paragraph(f"<b>Email:</b><br/>{email}", sidebar_text))
+    left_content.append(Paragraph(f"<b>Phone:</b><br/>{phone}", sidebar_text))
+    left_content.append(Paragraph(f"<b>Location:</b><br/>{location}", sidebar_text))
+    left_content.append(Spacer(1, 0.12*inch))
+    _add_list_section(left_content, "EDUCATION", data.get('education'), sidebar_heading, sidebar_text)
+    _add_list_section(left_content, "SKILLS", data.get('skills'), sidebar_heading, sidebar_text)
+    _add_list_section(left_content, "TOOLS", data.get('certifications'), sidebar_heading, sidebar_text)
+    _add_list_section(left_content, "LANGUAGES", data.get('languages'), sidebar_heading, sidebar_text)
+    return left_content
+
+
+def _build_right_content(data, main_name, main_title, section_heading, body_text):
+    """Helper function to build right main content"""
+    right_content = []
+    name = data.get('name', 'Professional')
+    objective = data.get('objective', 'Career Professional')
+    right_content.append(Paragraph(name, main_name))
+    right_content.append(Paragraph(objective, main_title))
+    right_content.append(Spacer(1, 0.08*inch))
+    _add_section(right_content, "PROFILE", data.get('summary'), section_heading, body_text)
+    _add_section(right_content, "EXPERIENCE", data.get('experience'), section_heading, body_text, split_char='\n')
+    _add_projects_section(right_content, data.get('projects'), section_heading, body_text)
+    _add_certifications_section(right_content, data.get('certifications'), section_heading, body_text)
+    right_content.append(Paragraph("Declaration:", section_heading))
+    right_content.append(Paragraph(
+        "I hereby declare that every information furnished above is true to the best of my knowledge.",
+        body_text
+    ))
+    return right_content
+
+
 def generate_resume_pdf(data):
-    """Generate a professional two-column PDF resume"""
+    """Generate a resume PDF using the centered single-column template."""
     try:
-        # Create in-memory PDF
         pdf_buffer = io.BytesIO()
-        doc = SimpleDocTemplate(pdf_buffer, pagesize=letter,
-                               topMargin=0.3*inch, bottomMargin=0.3*inch,
-                               leftMargin=0.3*inch, rightMargin=0.3*inch)
-        
-        story = []
+        doc = SimpleDocTemplate(
+            pdf_buffer,
+            pagesize=letter,
+            topMargin=0.42 * inch,
+            bottomMargin=0.42 * inch,
+            leftMargin=0.52 * inch,
+            rightMargin=0.52 * inch
+        )
+
         styles = getSampleStyleSheet()
-        
-        # ✅ Sidebar Styles (Dark Blue)
-        sidebar_heading = ParagraphStyle(
-            'SidebarHeading',
-            parent=styles['Heading2'],
-            fontSize=10.5,
-            textColor=colors.HexColor('#ffffff'),
-            fontName='Helvetica-Bold',
-            spaceAfter=8,
-            spaceBefore=6
-        )
-        
-        sidebar_text = ParagraphStyle(
-            'SidebarText',
-            parent=styles['Normal'],
-            fontSize=8,
-            textColor=colors.HexColor('#e5e7eb'),
-            leading=11,
-            spaceAfter=4
-        )
-        
-        # ✅ Main Content Styles
-        main_name = ParagraphStyle(
-            'MainName',
+        content_width = letter[0] - doc.leftMargin - doc.rightMargin
+
+        name_style = ParagraphStyle(
+            'ResumeName',
             parent=styles['Heading1'],
-            fontSize=28,
-            textColor=colors.HexColor('#1f2937'),
             fontName='Helvetica-Bold',
-            spaceAfter=0
+            fontSize=30,
+            leading=32,
+            alignment=1,
+            textColor=colors.HexColor('#232126'),
+            spaceAfter=2
         )
-        
-        main_title = ParagraphStyle(
-            'MainTitle',
+        title_style = ParagraphStyle(
+            'ResumeTitle',
             parent=styles['Normal'],
-            fontSize=11,
-            textColor=colors.HexColor('#6b7280'),
-            spaceAfter=8,
-            fontName='Helvetica'
+            fontName='Helvetica',
+            fontSize=15,
+            leading=18,
+            alignment=1,
+            textColor=colors.HexColor('#4b4b52'),
+            spaceAfter=12
         )
-        
-        section_heading = ParagraphStyle(
-            'SectionHead',
+        contact_style = ParagraphStyle(
+            'ResumeContact',
+            parent=styles['Normal'],
+            fontName='Helvetica',
+            fontSize=10.5,
+            leading=12,
+            alignment=1,
+            textColor=colors.HexColor('#5b5a60')
+        )
+        section_title_style = ParagraphStyle(
+            'ResumeSectionTitle',
             parent=styles['Heading2'],
-            fontSize=10,
-            textColor=colors.HexColor('#1f2937'),
             fontName='Helvetica-Bold',
-            spaceAfter=6,
-            spaceBefore=4,
-            borderBottomColor=colors.HexColor('#4f46e5'),
-            borderBottomWidth=1.5,
-            borderPadding=3
+            fontSize=16,
+            leading=18,
+            textColor=colors.HexColor('#232126'),
+            spaceAfter=8,
+            spaceBefore=2
         )
-        
-        body_text = ParagraphStyle(
-            'BodyText',
+        meta_style = ParagraphStyle(
+            'ResumeMeta',
             parent=styles['Normal'],
-            fontSize=8.5,
-            textColor=colors.HexColor('#374151'),
-            leading=11,
+            fontName='Helvetica',
+            fontSize=10.5,
+            leading=13,
+            textColor=colors.HexColor('#6a6870'),
+            spaceAfter=3
+        )
+        entry_title_style = ParagraphStyle(
+            'ResumeEntryTitle',
+            parent=styles['Normal'],
+            fontName='Helvetica-Bold',
+            fontSize=11.5,
+            leading=14,
+            textColor=colors.HexColor('#232126'),
+            spaceAfter=3
+        )
+        body_style = ParagraphStyle(
+            'ResumeBody',
+            parent=styles['Normal'],
+            fontName='Helvetica',
+            fontSize=10.5,
+            leading=15,
+            textColor=colors.HexColor('#4b4b52'),
             spaceAfter=4
         )
-        
-        # === LEFT COLUMN (SIDEBAR) ===
-        left_content = []
-        
-        # Contact
-        left_content.append(Paragraph("CONTACT", sidebar_heading))
-        email = data.get('email', 'email@example.com')
-        phone = data.get('phone', '+91-XXXXXXXXXX')
-        location = data.get('location', 'India')
-        
-        left_content.append(Paragraph(f"<b>Email:</b><br/>{email}", sidebar_text))
-        left_content.append(Paragraph(f"<b>Phone:</b><br/>{phone}", sidebar_text))
-        left_content.append(Paragraph(f"<b>Location:</b><br/>{location}", sidebar_text))
-        left_content.append(Spacer(1, 0.12*inch))
-        
-        # Education
-        if data.get('education'):
-            left_content.append(Paragraph("EDUCATION", sidebar_heading))
-            edu_lines = str(data.get('education', '')).split('\n')
-            for line in edu_lines:
-                if line.strip():
-                    left_content.append(Paragraph(f"• {line.strip()}", sidebar_text))
-            left_content.append(Spacer(1, 0.1*inch))
-        
-        # Skills
-        if data.get('skills'):
-            left_content.append(Paragraph("SKILLS", sidebar_heading))
-            skills = str(data.get('skills', ''))
-            for skill in skills.split(','):
-                skill_clean = skill.strip()
-                if skill_clean:
-                    left_content.append(Paragraph(f"• {skill_clean}", sidebar_text))
-            left_content.append(Spacer(1, 0.1*inch))
-        
-        # Tools
-        if data.get('certifications'):
-            left_content.append(Paragraph("TOOLS", sidebar_heading))
-            tools = str(data.get('certifications', ''))
-            for tool in tools.split(','):
-                tool_clean = tool.strip()
-                if tool_clean:
-                    left_content.append(Paragraph(f"• {tool_clean}", sidebar_text))
-            left_content.append(Spacer(1, 0.1*inch))
-        
-        # Languages
-        if data.get('languages'):
-            left_content.append(Paragraph("LANGUAGES", sidebar_heading))
-            langs = str(data.get('languages', ''))
-            for lang in langs.split(','):
-                lang_clean = lang.strip()
-                if lang_clean:
-                    left_content.append(Paragraph(f"• {lang_clean}", sidebar_text))
-        
-        # === RIGHT COLUMN (MAIN) ===
-        right_content = []
-        
-        name = data.get('name', 'Professional')
-        objective = data.get('objective', 'Career Professional')
-        
-        right_content.append(Paragraph(name, main_name))
-        right_content.append(Paragraph(objective, main_title))
-        right_content.append(Spacer(1, 0.08*inch))
-        
-        # Profile
-        if data.get('summary'):
-            right_content.append(Paragraph("PROFILE", section_heading))
-            right_content.append(Paragraph(str(data.get('summary', '')), body_text))
-            right_content.append(Spacer(1, 0.06*inch))
-        
-        # Experience
-        if data.get('experience'):
-            right_content.append(Paragraph("EXPERIENCE", section_heading))
-            exp = str(data.get('experience', ''))
-            for line in exp.split('\n'):
-                if line.strip():
-                    right_content.append(Paragraph(line.strip(), body_text))
-            right_content.append(Spacer(1, 0.06*inch))
-        
-        # Projects
-        if data.get('projects'):
-            right_content.append(Paragraph("PROJECT", section_heading))
-            projects = str(data.get('projects', ''))
-            for proj in projects.split('•'):
-                proj_clean = proj.strip()
-                if proj_clean:
-                    right_content.append(Paragraph(f"• {proj_clean}", body_text))
-            right_content.append(Spacer(1, 0.06*inch))
-        
-        # Certifications
-        if data.get('certifications') and 'TOOLS' not in str(data.get('certifications', '')).upper():
-            right_content.append(Paragraph("Certifications", section_heading))
-            right_content.append(Paragraph(str(data.get('certifications', '')), body_text))
-            right_content.append(Spacer(1, 0.06*inch))
-        
-        # Declaration
-        right_content.append(Paragraph("Declaration:", section_heading))
-        right_content.append(Paragraph(
-            "I hereby declare that every information furnished above is true to the best of my knowledge.",
-            body_text
-        ))
-        
-        # === CREATE TWO-COLUMN LAYOUT ===
-        left_frame = Table([[left_content]], colWidths=[1.9*inch])
-        left_frame.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, 0), colors.HexColor('#1e3a5f')),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 14),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 14),
-            ('TOPPADDING', (0, 0), (-1, -1), 16),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 16),
-        ]))
-        
-        right_frame = Table([[right_content]], colWidths=[4.1*inch])
-        right_frame.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, 0), colors.HexColor('#ffffff')),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 14),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 14),
-        ]))
-        
-        # Combine columns
-        main_table = Table([[left_frame, right_frame]], colWidths=[1.9*inch, 4.1*inch])
-        main_table.setStyle(TableStyle([
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        list_style = ParagraphStyle(
+            'ResumeList',
+            parent=body_style,
+            leftIndent=12,
+            firstLineIndent=-8,
+            spaceAfter=4
+        )
+        empty_style = ParagraphStyle(
+            'ResumeEmpty',
+            parent=body_style,
+            textColor=colors.HexColor('#77737a')
+        )
+
+        def safe_text(value, fallback=""):
+            text = str(value or fallback).strip()
+            return escape(text) if text else ""
+
+        def split_items(value, split_commas=False):
+            if not value:
+                return []
+            pattern = r'[\r\n,;]+' if split_commas else r'[\r\n;]+'
+            return [item.strip() for item in re.split(pattern, str(value)) if item.strip()]
+
+        def split_title_and_org(value):
+            parts = [part.strip() for part in str(value).split(',') if part.strip()]
+            if len(parts) >= 2:
+                return parts[0], ', '.join(parts[1:])
+            return str(value).strip(), ""
+
+        def parse_entry(raw, entry_type):
+            text = str(raw or "").strip()
+            if not text:
+                return {"raw": "", "meta": "", "title": "", "description": ""}
+
+            parts = [part.strip() for part in text.split('|') if part.strip()]
+            meta = ""
+            title = ""
+            description = ""
+
+            if entry_type in {"education", "experience"}:
+                if len(parts) >= 4:
+                    meta = f"{parts[0]} | {parts[1]}"
+                    title = parts[2]
+                    description = " | ".join(parts[3:])
+                elif len(parts) == 3:
+                    meta = f"{parts[0]} | {parts[1]}"
+                    title = parts[2]
+                elif len(parts) == 2:
+                    title_part, org_part = split_title_and_org(parts[0])
+                    meta = f"{org_part} | {parts[1]}" if org_part else f"{parts[0]} | {parts[1]}"
+                    title = title_part if org_part else ""
+
+            return {
+                "raw": text,
+                "meta": meta,
+                "title": title,
+                "description": description
+            }
+
+        def make_divider():
+            divider = Table([['']], colWidths=[content_width])
+            divider.setStyle(TableStyle([
+                ('LINEABOVE', (0, 0), (-1, 0), 0.7, colors.HexColor('#656268')),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                ('TOPPADDING', (0, 0), (-1, -1), 0),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 0)
+            ]))
+            return divider
+
+        def add_section_header(story, title):
+            story.append(Paragraph(safe_text(title), section_title_style))
+            story.append(make_divider())
+            story.append(Spacer(1, 0.12 * inch))
+
+        def add_text_block(story, value, fallback):
+            text = safe_text(value or fallback)
+            story.append(Paragraph(text, body_style if value or fallback else empty_style))
+
+        def add_entries(story, items, entry_type, empty_text):
+            if not items:
+                story.append(Paragraph(safe_text(empty_text), empty_style))
+                return
+
+            for index, item in enumerate(items):
+                entry = parse_entry(item, entry_type)
+                if entry['meta']:
+                    story.append(Paragraph(safe_text(entry['meta']), meta_style))
+                if entry['title']:
+                    story.append(Paragraph(safe_text(entry['title']), entry_title_style))
+                if entry['description']:
+                    story.append(Paragraph(safe_text(entry['description']), body_style))
+                if not entry['meta'] and not entry['title'] and not entry['description']:
+                    story.append(Paragraph(safe_text(entry['raw']), body_style))
+                if index != len(items) - 1:
+                    story.append(Spacer(1, 0.08 * inch))
+
+        def add_list(story, items, empty_text):
+            if not items:
+                story.append(Paragraph(safe_text(empty_text), empty_style))
+                return
+            for item in items:
+                story.append(Paragraph(f'&#8226; {safe_text(item)}', list_style))
+
+        def add_skill_grid(story, skills):
+            if not skills:
+                story.append(Paragraph("List your top professional skills.", empty_style))
+                return
+
+            columns = [[], [], []]
+            for index, skill in enumerate(skills):
+                columns[index % 3].append(Paragraph(f'&#8226; {safe_text(skill)}', list_style))
+
+            row_count = max(len(column) for column in columns)
+            rows = []
+            blank = Paragraph("", list_style)
+            for row_index in range(row_count):
+                rows.append([
+                    columns[0][row_index] if row_index < len(columns[0]) else blank,
+                    columns[1][row_index] if row_index < len(columns[1]) else blank,
+                    columns[2][row_index] if row_index < len(columns[2]) else blank
+                ])
+
+            skills_table = Table(rows, colWidths=[content_width / 3.0] * 3)
+            skills_table.setStyle(TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+                ('TOPPADDING', (0, 0), (-1, -1), 0),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ]))
+            story.append(skills_table)
+
+        summary = str(data.get('summary') or data.get('objective') or "").strip()
+        education = split_items(data.get('education'))
+        experience = split_items(data.get('experience'))
+        skills = split_items(data.get('skills'), split_commas=True)
+        projects = split_items(data.get('projects'))
+        certifications = split_items(data.get('certifications'))
+        languages = split_items(data.get('languages'), split_commas=True)
+
+        story = []
+        story.append(Paragraph(safe_text(str(data.get('name') or 'Professional').upper()), name_style))
+        story.append(Paragraph(safe_text(data.get('objective') or 'Professional Profile'), title_style))
+
+        contact_items = [
+            safe_text(data.get('phone')),
+            safe_text(data.get('email')),
+            safe_text(data.get('location'))
+        ]
+        contact_items = [item for item in contact_items if item]
+        if contact_items:
+            contact_row = [[Paragraph(item, contact_style) for item in contact_items]]
+            contact_table = Table(contact_row, colWidths=[content_width / len(contact_items)] * len(contact_items))
+            contact_table.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                ('TOPPADDING', (0, 0), (-1, -1), 0),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ]))
+            story.append(contact_table)
+            story.append(Spacer(1, 0.12 * inch))
+
+        add_section_header(story, "ABOUT ME")
+        add_text_block(
+            story,
+            summary,
+            "A motivated professional with strong communication, analytical thinking, and a focus on delivering meaningful results."
+        )
+        story.append(Spacer(1, 0.16 * inch))
+
+        add_section_header(story, "EDUCATION")
+        add_entries(story, education, "education", "Add your education details above.")
+        story.append(Spacer(1, 0.16 * inch))
+
+        add_section_header(story, "WORK EXPERIENCE")
+        add_entries(story, experience, "experience", "Add your experience details above.")
+
+        if projects:
+            story.append(Spacer(1, 0.16 * inch))
+            add_section_header(story, "PROJECTS")
+            add_list(story, projects, "Add key projects or accomplishments.")
+
+        if certifications:
+            story.append(Spacer(1, 0.16 * inch))
+            add_section_header(story, "CERTIFICATIONS")
+            add_list(story, certifications, "Optional certifications go here.")
+
+        if languages:
+            story.append(Spacer(1, 0.16 * inch))
+            add_section_header(story, "LANGUAGES")
+            add_list(story, languages, "Include languages you know.")
+
+        story.append(Spacer(1, 0.16 * inch))
+        add_section_header(story, "SKILLS")
+        add_skill_grid(story, skills)
+        story.append(Spacer(1, 0.18 * inch))
+
+        footer_bar = Table([['']], colWidths=[content_width], rowHeights=[18])
+        footer_bar.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#6f6a6b')),
             ('LEFTPADDING', (0, 0), (-1, -1), 0),
             ('RIGHTPADDING', (0, 0), (-1, -1), 0),
             ('TOPPADDING', (0, 0), (-1, -1), 0),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
         ]))
-        
-        story.append(main_table)
-        
-        # Build PDF
+        story.append(footer_bar)
+
         doc.build(story)
         pdf_buffer.seek(0)
-        
         return pdf_buffer
-    
+
     except Exception as e:
         print(f"Error generating PDF: {e}")
         import traceback
@@ -318,7 +602,8 @@ def generate_resume_pdf(data):
 
 
 # ✅ 3. Career Match Scoring
-def score_career_matches(tags):
+def score_career_matches():
+    """Score user against career paths"""
     return [
         {"career_path_id": "1", "title": "Full Stack Developer", "field": "Technology", "score": 90},
         {"career_path_id": "2", "title": "Data Scientist", "field": "Technology", "score": 75},
@@ -328,12 +613,15 @@ def score_career_matches(tags):
 
 # ✅ 4. Skill Gap Analysis
 def skill_gap_analysis(user_skills, career_id):
+    """Analyze skill gaps for a career"""
     try:
         rows = query("SELECT required_skills FROM career_paths WHERE id=%s", (career_id,))
         if not rows:
             return {"error": "Career not found"}
 
-        required = rows[0]["required_skills"] or []
+        required = rows[0].get("required_skills") or []
+        if isinstance(required, str):
+            required = [s.strip() for s in required.split(',')]
 
         user_lower = [s.lower() for s in user_skills]
         have = [s for s in required if s.lower() in user_lower]
@@ -361,19 +649,23 @@ def skill_gap_analysis(user_skills, career_id):
 
 # ✅ 5. Weekly Report
 def generate_weekly_report(user_id):
-    prompt = "Generate weekly report"
+    """Generate weekly progress report"""
+    prompt = f"Generate a motivational weekly progress report for user {user_id} in PathPilot. Include achievements, focus areas, and next steps."
     return safe_generate(prompt)
 
 
 # ✅ 6. Roadmap Generator
 def generate_roadmap_milestones(career_id, weeks):
+    """Generate learning roadmap milestones"""
     try:
-        response = safe_generate("roadmap")
+        prompt = f"Generate a {weeks}-week learning roadmap for career path {career_id}. Return as JSON array with week_number, title, description, and resources."
+        response = safe_generate(prompt)
 
         try:
             return json.loads(response)
-        except:
-            return []
+        except json.JSONDecodeError:
+            return json.loads(fallback_response("roadmap"))
 
-    except Exception:
+    except Exception as e:
+        print(f"Error generating roadmap: {e}")
         return []

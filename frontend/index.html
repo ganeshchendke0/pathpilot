@@ -235,11 +235,11 @@
             </div>
             <form id="login-form" class="auth-form">
               <div class="form-group">
-                <label class="form-label">Email</label>
+                <label for="l-email" class="form-label">Email</label>
                 <input id="l-email" type="email" class="form-input" placeholder="you@example.com" required/>
               </div>
               <div class="form-group">
-                <label class="form-label">Password</label>
+                <label for="l-pw" class="form-label">Password</label>
                 <div style="position: relative;">
                   <input id="l-pw" type="password" class="form-input" placeholder="••••••••" required/>
                   <button type="button" class="password-toggle" data-target="l-pw" aria-label="Toggle password visibility">
@@ -252,15 +252,15 @@
             </form>
             <form id="register-form" class="auth-form" style="display:none">
               <div class="form-group">
-                <label class="form-label">Full Name</label>
+                <label for="r-name" class="form-label">Full Name</label>
                 <input id="r-name" type="text" class="form-input" placeholder="Your full name" required/>
               </div>
               <div class="form-group">
-                <label class="form-label">Email</label>
+                <label for="r-email" class="form-label">Email</label>
                 <input id="r-email" type="email" class="form-input" placeholder="you@example.com" required/>
               </div>
               <div class="form-group">
-                <label class="form-label">Password</label>
+                <label for="r-pw" class="form-label">Password</label>
                 <div style="position: relative;">
                   <input id="r-pw" type="password" class="form-input" placeholder="At least 6 characters" required/>
                   <button type="button" class="password-toggle" data-target="r-pw" aria-label="Toggle password visibility">
@@ -299,11 +299,11 @@
             <h4>Pomodoro Focus Timer</h4>
             <p>25-minute deep work sessions with short and long breaks. Every session is automatically logged to your streak.</p>
           </div>
-          <div class="feature-card fc-3" role="button" onclick="handleQuizClick()" style="cursor:pointer">
+          <button class="feature-card fc-3" onclick="handleQuizClick()" aria-label="Take AI Career Quiz">
             <div class="feature-icon fi-3">🔮</div>
             <h4>AI Career Quiz</h4>
             <p>Answer 6 questions about your interests and strengths. Get matched to your top career paths instantly.</p>
-          </div>
+          </button>
           <div class="feature-card fc-4">
             <div class="feature-icon fi-4">🗺️</div>
             <h4>Roadmap Builder</h4>
