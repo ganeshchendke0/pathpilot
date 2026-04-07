@@ -12,54 +12,162 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from xml.sax.saxutils import escape
 
-# ✅ Load env
+# Load env
 load_dotenv()
 
-# ✅ Gemini SDK
+# Gemini SDK state
 GEMINI_ENABLED = False
-model = None
-try:
+GEMINI_CLIENT = None
+GEMINI_LEGACY = None
+GEMINI_ACTIVE_MODEL = None
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL_CANDIDATES = [
+    model_name.strip()
+    for model_name in (
+        os.getenv("GEMINI_MODEL_CANDIDATES")
+        or os.getenv("GEMINI_MODEL")
+        or "gemini-2.5-flash,gemini-2.0-flash"
+    ).split(",")
+    if model_name.strip()
+]
+
+
+def _init_gemini():
+    """Initialize the best available Gemini SDK for the current environment."""
+    global GEMINI_ENABLED, GEMINI_CLIENT, GEMINI_LEGACY
+
+    if not GEMINI_API_KEY:
+        print("GEMINI_API_KEY not set in environment")
+        return
+
     try:
-        import google.generativeai as genai
-    except ImportError:
         from google import genai
 
-    api_key = os.getenv("GEMINI_API_KEY")
-    if api_key:
-        genai.configure(api_key=api_key)
-        try:
-            model = genai.GenerativeModel("gemini-1.5-flash")
-        except AttributeError:
-            # support older/newer API wrappers
-            model = None
+        GEMINI_CLIENT = genai.Client(api_key=GEMINI_API_KEY)
         GEMINI_ENABLED = True
-        print("✅ Gemini connected successfully")
-    else:
-        print("⚠️ GEMINI_API_KEY not set in environment")
+        print("Gemini SDK initialized with google.genai")
+        return
+    except ImportError:
+        pass
+    except Exception as e:
+        print(f"Gemini google.genai initialization failed: {e}")
 
-except ImportError:
-    print("⚠️ google-generativeai package not installed")
-except Exception as e:
-    print(f"⚠️ Gemini API not available: {e}")
+    try:
+        import google.generativeai as legacy_genai
+
+        legacy_genai.configure(api_key=GEMINI_API_KEY)
+        GEMINI_LEGACY = legacy_genai
+        GEMINI_ENABLED = True
+        print("Gemini SDK initialized with legacy google.generativeai")
+    except ImportError:
+        print("No Gemini SDK installed. Install google-genai.")
+    except Exception as e:
+        print(f"Gemini API not available: {e}")
 
 
-# ✅ SMART AI FUNCTION - Fixed
+def _extract_response_text(response):
+    """Extract text from either the new or legacy Gemini SDK response objects."""
+    text = getattr(response, "text", None)
+    if text:
+        return text
+
+    if hasattr(response, "candidates"):
+        parts = []
+        for candidate in getattr(response, "candidates", []) or []:
+            content = getattr(candidate, "content", None)
+            for part in getattr(content, "parts", []) or []:
+                value = getattr(part, "text", None)
+                if value:
+                    parts.append(value)
+        if parts:
+            return "\n".join(parts)
+
+    return None
+
+
+def _generate_with_new_sdk(prompt):
+    """Generate content with the current google.genai client."""
+    global GEMINI_ACTIVE_MODEL
+
+    last_error = None
+    candidates = []
+
+    if GEMINI_ACTIVE_MODEL:
+        candidates.append(GEMINI_ACTIVE_MODEL)
+    candidates.extend([m for m in GEMINI_MODEL_CANDIDATES if m != GEMINI_ACTIVE_MODEL])
+
+    for model_name in candidates:
+        try:
+            response = GEMINI_CLIENT.models.generate_content(
+                model=model_name,
+                contents=prompt,
+            )
+            text = _extract_response_text(response)
+            if text:
+                if GEMINI_ACTIVE_MODEL != model_name:
+                    GEMINI_ACTIVE_MODEL = model_name
+                    print(f"Gemini model selected: {model_name}")
+                return text
+        except Exception as e:
+            last_error = e
+            print(f"Gemini model '{model_name}' failed: {e}")
+
+    if last_error:
+        raise last_error
+
+    raise RuntimeError("No Gemini models are configured.")
+
+
+def _generate_with_legacy_sdk(prompt):
+    """Generate content with the deprecated google.generativeai SDK."""
+    global GEMINI_ACTIVE_MODEL
+
+    last_error = None
+    candidates = []
+
+    if GEMINI_ACTIVE_MODEL:
+        candidates.append(GEMINI_ACTIVE_MODEL)
+    candidates.extend([m for m in GEMINI_MODEL_CANDIDATES if m != GEMINI_ACTIVE_MODEL])
+
+    for model_name in candidates:
+        try:
+            model = GEMINI_LEGACY.GenerativeModel(model_name)
+            response = model.generate_content(prompt)
+            text = _extract_response_text(response)
+            if text:
+                if GEMINI_ACTIVE_MODEL != model_name:
+                    GEMINI_ACTIVE_MODEL = model_name
+                    print(f"Gemini model selected: {model_name}")
+                return text
+        except Exception as e:
+            last_error = e
+            print(f"Gemini model '{model_name}' failed: {e}")
+
+    if last_error:
+        raise last_error
+
+    raise RuntimeError("No Gemini models are configured.")
+
+
+_init_gemini()
+
+
 def safe_generate(prompt):
-    """Generate content using Gemini with fallback"""
+    """Generate content using Gemini with fallback."""
     try:
         if not GEMINI_ENABLED:
             return fallback_response(prompt)
-        
-        response = model.generate_content(prompt)
-        
-        # ✅ Extract text properly
-        if response and response.text:
-            return response.text
-        
+
+        if GEMINI_CLIENT is not None:
+            return _generate_with_new_sdk(prompt)
+
+        if GEMINI_LEGACY is not None:
+            return _generate_with_legacy_sdk(prompt)
+
         return fallback_response(prompt)
 
     except Exception as e:
-        print(f"⚠️ Gemini error: {e}")
+        print(f"Gemini error: {e}")
         return fallback_response(prompt)
 
 
