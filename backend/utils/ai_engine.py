@@ -802,13 +802,53 @@ def generate_resume_pdf(data):
 
 
 # ✅ 3. Career Match Scoring
-def score_career_matches():
-    """Score user against career paths"""
-    return [
-        {"career_path_id": "1", "title": "Full Stack Developer", "field": "Technology", "score": 90},
-        {"career_path_id": "2", "title": "Data Scientist", "field": "Technology", "score": 75},
-        {"career_path_id": "3", "title": "UI/UX Designer", "field": "Design", "score": 60}
-    ]
+def score_career_matches(selected_tags=None, limit=3):
+    """Score careers against quiz tags using overlap with career_paths.quiz_tags."""
+    tags = [str(tag).strip().lower() for tag in (selected_tags or []) if str(tag).strip()]
+
+    try:
+        paths = query("SELECT id, title, field, quiz_tags FROM career_paths ORDER BY title")
+    except Exception as e:
+        print(f"Error loading career paths for quiz scoring: {e}")
+        paths = []
+
+    if not paths:
+        return []
+
+    scored = []
+    for path in paths:
+        quiz_tags = path.get("quiz_tags") or []
+        if isinstance(quiz_tags, str):
+            quiz_tags = [t.strip() for t in quiz_tags.split(",") if t.strip()]
+        quiz_tags_lower = {t.lower() for t in quiz_tags}
+
+        if tags and quiz_tags_lower:
+            overlap = len(set(tags) & quiz_tags_lower)
+            score = int(round((overlap / max(len(quiz_tags_lower), 1)) * 100))
+            if overlap == 0:
+                continue
+        else:
+            # Fallback when there are no selected tags (or no quiz tags on a row)
+            score = 50
+
+        scored.append({
+            "career_path_id": str(path.get("id")),
+            "title": path.get("title") or "Career Path",
+            "field": path.get("field") or "General",
+            "score": max(1, min(score, 100))
+        })
+
+    if not scored:
+        # If nothing matched, return a default shortlist instead of failing the flow.
+        scored = [{
+            "career_path_id": str(path.get("id")),
+            "title": path.get("title") or "Career Path",
+            "field": path.get("field") or "General",
+            "score": 40
+        } for path in paths[: max(1, int(limit))]]
+
+    scored.sort(key=lambda item: (-item["score"], item["title"]))
+    return scored[: max(1, int(limit))]
 
 
 # ✅ 4. Skill Gap Analysis

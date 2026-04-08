@@ -1,5 +1,6 @@
 import jwt
 import bcrypt
+import json
 from utils.ai_engine import ask_career_question, generate_resume, generate_resume_pdf
 from datetime import datetime, timedelta, timezone
 from flask import request, jsonify, send_file
@@ -216,16 +217,26 @@ def quiz_questions():
     return jsonify({"questions": qs}), 200
 
 def quiz_submit():
-    d       = request.get_json()
+    d = request.get_json(silent=True) or {}
     answers = d.get("answers", [])
-    # answers is already a flat array of tags from frontend
-    all_tags = [tag for tag in answers if tag]  # filter out empty/None values
+    if not isinstance(answers, list):
+        return jsonify({"error": "answers must be a list"}), 400
+
+    # answers is already a flat tag array from frontend
+    all_tags = [str(tag).strip() for tag in answers if str(tag).strip()]
     matches = score_career_matches(all_tags)
-    from config.db import execute
-    execute(
-        "INSERT INTO quiz_results(user_id,answers,matched_tags,top_paths) VALUES(%s,%s,%s,%s)",
-        (request.user_id, str(answers), all_tags, str(matches)))
-    BadgeModel.award(request.user_id, "quiz_taker")
+
+    # Keep quiz submission resilient: compute + return matches even if audit logging fails.
+    try:
+        from config.db import execute
+        execute(
+            "INSERT INTO quiz_results(user_id,answers,matched_tags,top_paths) VALUES(%s,%s,%s,%s)",
+            (request.user_id, json.dumps(answers), all_tags, json.dumps(matches))
+        )
+        BadgeModel.award(request.user_id, "quiz_taker")
+    except Exception as e:
+        print(f"Quiz submit logging failed: {e}")
+
     return jsonify({"matches": matches}), 200
 
 def weekly_report():
