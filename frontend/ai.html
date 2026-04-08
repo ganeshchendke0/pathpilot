@@ -273,126 +273,138 @@
       flex-wrap: wrap;
     }
     .resume-template {
-      padding: 20px;
-      border-radius: 28px;
-      background: linear-gradient(180deg, #eef2f7 0%, #e7ebf1 100%);
+      padding: 18px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, #eef1f6 0%, #e6ebf2 100%);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
     }
     .resume-template-page {
       background: #ffffff;
-      max-width: 920px;
+      max-width: 860px;
       margin: 0 auto;
-      padding: 78px 84px 0;
-      box-shadow: 0 28px 60px rgba(15, 23, 42, 0.14);
+      padding: 36px 44px;
+      box-shadow: 0 24px 54px rgba(15, 23, 42, 0.12);
+      color: #151515;
     }
     .resume-template-header {
-      text-align: center;
-      padding-bottom: 12px;
+      padding-bottom: 6px;
+    }
+    .resume-template-head-main {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
     }
     .resume-template-name {
       margin: 0;
-      font-size: clamp(2.4rem, 4.6vw, 3.5rem);
-      line-height: 1;
-      letter-spacing: 0.06em;
+      font-size: clamp(1.85rem, 3vw, 2.25rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
       font-weight: 800;
-      color: #232126;
-      text-transform: uppercase;
+      color: #111111;
     }
-    .resume-template-role {
-      margin-top: 12px;
-      font-size: 1.2rem;
-      color: #4b4b52;
-      font-weight: 500;
+    .resume-template-location {
+      margin: 6px 0 0;
+      font-size: 0.92rem;
+      color: #4b5563;
     }
     .resume-template-contact {
       display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-      padding: 0 4px 12px;
-      border-bottom: 1px solid #656268;
-      color: #5b5a60;
-      font-size: 0.98rem;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      min-width: 220px;
+      text-align: right;
     }
     .resume-template-contact-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: #0b79b7;
     }
-    .resume-template-contact-icon {
-      width: 18px;
-      text-align: center;
-      color: #262429;
-      font-size: 1rem;
-      line-height: 1;
+    .resume-template-contact-item a {
+      color: inherit;
+      text-decoration: none;
+      word-break: break-word;
+    }
+    .resume-template-contact-item--plain {
+      color: #2f3b4a;
     }
     .resume-template-section {
-      padding: 18px 0 22px;
+      padding-top: 12px;
     }
     .resume-template-section-head {
-      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
     }
     .resume-template-section-title {
-      margin: 0 0 10px;
-      font-size: 0.95rem;
-      letter-spacing: 0.14em;
+      margin: 0;
+      font-size: 0.98rem;
+      letter-spacing: 0.02em;
       text-transform: uppercase;
       font-weight: 800;
-      color: #232126;
+      color: #111111;
+      white-space: nowrap;
     }
     .resume-template-divider {
       height: 1px;
-      background: #656268;
+      background: #cfd5dc;
+      flex: 1;
     }
     .resume-template-text,
     .resume-template-entry-text,
     .resume-template-list li,
-    .resume-template-skill-column li,
+    .resume-template-skills-list li,
     .resume-template-empty {
       margin: 0;
-      font-size: 0.98rem;
-      line-height: 1.7;
-      color: #4b4b52;
+      font-size: 0.96rem;
+      line-height: 1.55;
+      color: #2f3136;
+    }
+    .resume-template-text {
+      margin-left: 12px;
     }
     .resume-template-entry {
-      margin-bottom: 18px;
+      margin-bottom: 12px;
     }
     .resume-template-entry:last-child {
       margin-bottom: 0;
     }
-    .resume-template-meta {
+    .resume-template-entry-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
       margin-bottom: 4px;
-      color: #6a6870;
-      font-size: 0.98rem;
+    }
+    .resume-template-meta {
+      margin: 0;
+      color: #374151;
+      font-size: 0.9rem;
+      white-space: nowrap;
     }
     .resume-template-entry-title {
-      margin-bottom: 4px;
-      color: #232126;
+      margin: 0;
+      color: #111111;
       font-weight: 800;
       font-size: 1rem;
     }
     .resume-template-list,
-    .resume-template-skill-column {
+    .resume-template-skills-list {
       margin: 0;
-      padding-left: 22px;
+      padding-left: 26px;
     }
     .resume-template-list li,
-    .resume-template-skill-column li {
-      margin-bottom: 6px;
+    .resume-template-skills-list li {
+      margin-bottom: 4px;
     }
-    .resume-template-skills-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px 28px;
+    .resume-template-skill-label {
+      font-weight: 700;
+      color: #111111;
     }
     .resume-template-empty {
-      color: #77737a;
-    }
-    .resume-template-footer-bar {
-      height: 34px;
-      margin-top: 10px;
-      background: #6f6a6b;
+      color: #6b7280;
     }
 
     @media (max-width: 640px) {
@@ -403,15 +415,15 @@
         border-radius: 20px;
       }
       .resume-template-page {
-        padding: 40px 22px 0;
+        padding: 24px 18px;
+      }
+      .resume-template-head-main {
+        flex-direction: column;
       }
       .resume-template-contact {
-        justify-content: center;
-        gap: 12px 18px;
-      }
-      .resume-template-skills-grid {
-        grid-template-columns: 1fr;
-        gap: 4px;
+        align-items: flex-start;
+        min-width: 0;
+        text-align: left;
       }
     }
   </style>

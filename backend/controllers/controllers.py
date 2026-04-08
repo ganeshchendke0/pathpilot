@@ -10,7 +10,7 @@ from models.models import (
     LeaderboardModel, BadgeModel
 )
 from utils.ai_engine import (
-    score_career_matches, skill_gap_analysis,
+    get_last_ai_status, score_career_matches, skill_gap_analysis,
     generate_weekly_report, generate_roadmap_milestones
 )
 
@@ -230,7 +230,7 @@ def quiz_submit():
 
 def weekly_report():
     report = generate_weekly_report(request.user_id)
-    return jsonify({"report": report}), 200
+    return jsonify({"report": report, "ai_status": get_last_ai_status()}), 200
 
 # ═══════════════════════════════════════════
 #  ROADMAP
@@ -273,7 +273,7 @@ def ai_chat():
         return jsonify({"error": "Question is required"}), 400
     try:
         answer = ask_career_question(question, context)
-        return jsonify({"answer": answer})
+        return jsonify({"answer": answer, "ai_status": get_last_ai_status()})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -284,7 +284,7 @@ def build_resume():
         return jsonify({"error": "No data provided"}), 400
     try:
         resume = generate_resume(data)
-        return jsonify({"resume": resume, "pdf_ready": True})
+        return jsonify({"resume": resume, "pdf_ready": True, "ai_status": get_last_ai_status()})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

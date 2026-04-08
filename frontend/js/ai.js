@@ -4,6 +4,25 @@
 
 const BASE_URL = "http://127.0.0.1:5000/api";
 
+function formatAiFallbackMessage(status) {
+  if (!status || status.source !== "fallback") return "";
+
+  const retryHint = status.retry_after ? ` Try again in about ${status.retry_after} seconds.` : "";
+
+  switch (status.reason) {
+    case "quota_exceeded":
+      return `AI quota is currently exhausted, so this response is using PathPilot's built-in fallback guidance.${retryHint}`;
+    case "temporarily_unavailable":
+      return `Gemini is under heavy load right now, so this response is using fallback guidance.${retryHint}`;
+    case "cooldown_active":
+      return `AI requests are cooling down after a recent limit hit, so fallback guidance is being used.${retryHint}`;
+    case "gemini_disabled":
+      return "Gemini is not configured, so fallback guidance is being used.";
+    default:
+      return `AI is temporarily unavailable, so this response is using fallback guidance.${retryHint}`;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   if (!requireAuth()) return;
   document.getElementById("logout-btn")?.addEventListener("click", () => Auth.logout());
@@ -50,6 +69,10 @@ async function sendMessage() {
     }
     
     appendMessage("bot", data.answer || data.response || "No response from AI");
+    const fallbackNotice = formatAiFallbackMessage(data.ai_status);
+    if (fallbackNotice) {
+      appendMessage("bot", `Note: ${fallbackNotice}`);
+    }
   } catch (err) {
     removeThinking();
     appendMessage("bot", "❌ Network error. Please check your connection and try again.");
@@ -100,26 +123,18 @@ function extractSummary(summary, resumeText, objective) {
   return objective || "A motivated professional with strong communication, analytical thinking, and a focus on delivering meaningful results.";
 }
 
-function splitTitleAndOrganization(value) {
-  const parts = String(value || "")
-    .split(",")
-    .map(part => part.trim())
+function splitDetailItems(value) {
+  return String(value || "")
+    .split(/(?:\s*[;•]\s*|\r?\n)+/)
+    .map(item => item.trim())
     .filter(Boolean);
-
-  if (parts.length >= 2) {
-    return {
-      title: parts[0],
-      organization: parts.slice(1).join(", ")
-    };
-  }
-
-  return {
-    title: String(value || "").trim(),
-    organization: ""
-  };
 }
 
-function parseResumeEntry(item, type) {
+function looksLikeDate(value) {
+  return /(present|current|\d{4}|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(String(value || ""));
+}
+
+function parseResumeEntry(item) {
   const raw = String(item || "").trim();
   if (!raw) return null;
 
@@ -128,39 +143,68 @@ function parseResumeEntry(item, type) {
     .map(part => part.trim())
     .filter(Boolean);
 
-  let meta = "";
   let title = "";
-  let description = "";
+  let meta = "";
+  let bullets = [];
 
-  if (type === "experience") {
-    if (parts.length >= 4) {
-      meta = `${parts[0]} | ${parts[1]}`;
-      title = parts[2];
-      description = parts.slice(3).join(" | ");
-    } else if (parts.length === 3) {
-      meta = `${parts[0]} | ${parts[1]}`;
-      title = parts[2];
-    } else if (parts.length === 2) {
-      const parsed = splitTitleAndOrganization(parts[0]);
-      meta = parsed.organization ? `${parsed.organization} | ${parts[1]}` : `${parts[0]} | ${parts[1]}`;
-      title = parsed.organization ? parsed.title : "";
+  if (parts.length === 1) {
+    title = parts[0];
+  } else if (parts.length === 2) {
+    title = parts[0];
+    if (looksLikeDate(parts[1])) {
+      meta = parts[1];
+    } else {
+      bullets = splitDetailItems(parts[1]);
     }
-  } else if (type === "education") {
-    if (parts.length >= 4) {
-      meta = `${parts[0]} | ${parts[1]}`;
-      title = parts[2];
-      description = parts.slice(3).join(" | ");
-    } else if (parts.length === 3) {
-      meta = `${parts[0]} | ${parts[1]}`;
-      title = parts[2];
-    } else if (parts.length === 2) {
-      const parsed = splitTitleAndOrganization(parts[0]);
-      meta = parsed.organization ? `${parsed.organization} | ${parts[1]}` : `${parts[0]} | ${parts[1]}`;
-      title = parsed.organization ? parsed.title : "";
-    }
+  } else {
+    title = parts[0];
+    meta = parts[1];
+    bullets = splitDetailItems(parts.slice(2).join(";"));
   }
 
-  return { raw, meta, title, description };
+  return { raw, meta, title, bullets };
+}
+
+function parseSkillGroups(value) {
+  const lines = normalizeResumeLines(value);
+  if (!lines.length) return [];
+
+  return lines.map(line => {
+    const parts = line.split(/[:|]/).map(part => part.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      return {
+        label: parts[0],
+        values: normalizeResumeList(parts.slice(1).join(", "))
+      };
+    }
+
+    return {
+      label: "",
+      values: normalizeResumeList(line)
+    };
+  }).filter(group => group.label || group.values.length);
+}
+
+function formatUrl(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  if (/^(mailto:|tel:|https?:\/\/)/i.test(text)) return text;
+  if (text.includes("@")) return `mailto:${text}`;
+  if (/^[+\d\s()-]+$/.test(text)) return `tel:${text.replace(/\s+/g, "")}`;
+  return `https://${text.replace(/^\/+/, "")}`;
+}
+
+function renderContactItem(item) {
+  if (!item?.text) return "";
+
+  if (!item.href) {
+    return `<div class="resume-template-contact-item resume-template-contact-item--plain">${esc(item.text)}</div>`;
+  }
+
+  return `
+    <div class="resume-template-contact-item">
+      <a href="${esc(item.href)}" target="_blank" rel="noopener noreferrer">${esc(item.text)}</a>
+    </div>`;
 }
 
 function renderResumeSection(title, content) {
@@ -174,26 +218,29 @@ function renderResumeSection(title, content) {
     </section>`;
 }
 
-function renderResumeEntries(items, type, emptyText) {
+function renderResumeEntries(items, emptyText) {
   if (!items.length) {
     return `<p class="resume-template-empty">${esc(emptyText)}</p>`;
   }
 
   return items.map(item => {
-    const entry = parseResumeEntry(item, type);
+    const entry = parseResumeEntry(item);
 
     if (!entry) {
       return "";
     }
 
-    const hasStructuredContent = entry.meta || entry.title || entry.description;
-
     return `
       <article class="resume-template-entry">
-        ${entry.meta ? `<div class="resume-template-meta">${esc(entry.meta)}</div>` : ""}
-        ${entry.title ? `<div class="resume-template-entry-title">${esc(entry.title)}</div>` : ""}
-        ${entry.description ? `<p class="resume-template-entry-text">${esc(entry.description)}</p>` : ""}
-        ${hasStructuredContent ? "" : `<p class="resume-template-entry-text">${esc(entry.raw)}</p>`}
+        <div class="resume-template-entry-head">
+          <h3 class="resume-template-entry-title">${esc(entry.title || entry.raw)}</h3>
+          ${entry.meta ? `<div class="resume-template-meta">${esc(entry.meta)}</div>` : ""}
+        </div>
+        ${entry.bullets.length ? `
+          <ul class="resume-template-list">
+            ${entry.bullets.map(detail => `<li>${esc(detail)}</li>`).join("")}
+          </ul>
+        ` : ""}
       </article>`;
   }).join("");
 }
@@ -209,44 +256,43 @@ function renderResumeList(items, emptyText) {
     </ul>`;
 }
 
-function renderSkillsGrid(skills) {
-  if (!skills.length) {
+function renderSkillsList(skillGroups) {
+  if (!skillGroups.length) {
     return `<p class="resume-template-empty">List your top professional skills.</p>`;
   }
 
-  const columns = [[], [], []];
-  skills.forEach((skill, index) => {
-    columns[index % columns.length].push(skill);
-  });
-
   return `
-    <div class="resume-template-skills-grid">
-      ${columns.map(column => `
-        <ul class="resume-template-skill-column">
-          ${column.map(skill => `<li>${esc(skill)}</li>`).join("")}
-        </ul>
+    <ul class="resume-template-skills-list">
+      ${skillGroups.map(group => `
+        <li>
+          ${group.label ? `<span class="resume-template-skill-label">${esc(group.label)}:</span> ` : ""}
+          ${esc(group.values.join(", "))}
+        </li>
       `).join("")}
-    </div>`;
+    </ul>`;
 }
 
 function renderResumeTemplate(data, resumeText) {
   const summary = extractSummary(data.summary, resumeText, data.objective);
   const education = normalizeResumeLines(data.education);
   const experience = normalizeResumeLines(data.experience);
-  const skills = normalizeResumeList(data.skills);
+  const skills = parseSkillGroups(data.skills);
   const projects = normalizeResumeLines(data.projects);
   const certifications = normalizeResumeLines(data.certifications);
   const languages = normalizeResumeList(data.languages);
 
   const contactItems = [
-    data.phone ? { icon: "&#9742;", text: data.phone } : null,
-    data.email ? { icon: "&#9993;", text: data.email } : null,
-    data.location ? { icon: "&#128205;", text: data.location } : null
+    data.phone ? { text: data.phone, href: formatUrl(data.phone) } : null,
+    data.email ? { text: data.email, href: formatUrl(data.email) } : null
   ].filter(Boolean);
 
-  const optionalSections = [
-    projects.length ? renderResumeSection("Projects", renderResumeList(projects, "Add key projects or accomplishments.")) : "",
-    certifications.length ? renderResumeSection("Certifications", renderResumeList(certifications, "Optional certifications go here.")) : "",
+  const sections = [
+    renderResumeSection("Summary", `<p class="resume-template-text">${esc(summary)}</p>`),
+    renderResumeSection("Education", renderResumeEntries(education, "Add your education details above.")),
+    experience.length ? renderResumeSection("Experience", renderResumeEntries(experience, "Add your experience details above.")) : "",
+    projects.length ? renderResumeSection("Projects", renderResumeEntries(projects, "Add key projects or accomplishments.")) : "",
+    renderResumeSection("Skills", renderSkillsList(skills)),
+    certifications.length ? renderResumeSection("Certificates", renderResumeEntries(certifications, "Optional certificates go here.")) : "",
     languages.length ? renderResumeSection("Languages", renderResumeList(languages, "Include languages you know.")) : ""
   ].join("");
 
@@ -254,27 +300,20 @@ function renderResumeTemplate(data, resumeText) {
     <div class="resume-template">
       <div class="resume-template-page">
         <header class="resume-template-header">
-          <h1 class="resume-template-name">${esc(data.name)}</h1>
-          <div class="resume-template-role">${esc(data.objective)}</div>
-          ${contactItems.length ? `
-            <div class="resume-template-contact">
-              ${contactItems.map(item => `
-                <div class="resume-template-contact-item">
-                  <span class="resume-template-contact-icon">${item.icon}</span>
-                  <span>${esc(item.text)}</span>
-                </div>
-              `).join("")}
+          <div class="resume-template-head-main">
+            <div>
+              <h1 class="resume-template-name">${esc(data.name)}</h1>
+              ${data.location ? `<p class="resume-template-location">${esc(data.location)}</p>` : ""}
             </div>
-          ` : ""}
+            ${contactItems.length ? `
+              <div class="resume-template-contact">
+                ${contactItems.map(renderContactItem).join("")}
+              </div>
+            ` : ""}
+          </div>
         </header>
 
-        ${renderResumeSection("About Me", `<p class="resume-template-text">${esc(summary)}</p>`)}
-        ${renderResumeSection("Education", renderResumeEntries(education, "education", "Add your education details above."))}
-        ${renderResumeSection("Work Experience", renderResumeEntries(experience, "experience", "Add your experience details above."))}
-        ${optionalSections}
-        ${renderResumeSection("Skills", renderSkillsGrid(skills))}
-
-        <div class="resume-template-footer-bar"></div>
+        ${sections}
       </div>
     </div>`;
 }
@@ -293,8 +332,8 @@ async function buildResume() {
   const languages       = document.getElementById("r-languages").value.trim();
   const objective       = document.getElementById("r-objective").value.trim();
 
-  if (!name || !email || !skills || !objective) {
-    showToast("Please fill Name, Email, Skills, and Career Objective", "warning");
+  if (!name || !email || !skills) {
+    showToast("Please fill Name, Email, and Skills", "warning");
     return;
   }
 
@@ -334,6 +373,7 @@ async function buildResume() {
 
     window.currentResumeData = resumeData;
     const resumeText = data.resume || data.response || summary;
+    const fallbackNotice = formatAiFallbackMessage(data.ai_status);
     output.innerHTML = `
       <div class="resume-output-shell">
         <div class="resume-output-toolbar">
@@ -343,6 +383,7 @@ async function buildResume() {
             <button class="btn btn-primary btn-sm" onclick="downloadResumeAsPDF()">📥 Download PDF</button>
           </div>
         </div>
+        ${fallbackNotice ? `<p class="text-muted">${esc(fallbackNotice)}</p>` : ""}
         ${renderResumeTemplate(resumeData, resumeText)}
       </div>`;
   } catch (err) {

@@ -4,8 +4,44 @@
 
 const API = "http://127.0.0.1:5000/api";
 
-async function _call(endpoint, options = {}) {
+function _clearStoredSession() {
+  localStorage.removeItem("pp_token");
+  localStorage.removeItem("pp_user");
+}
+
+function _parseJwtPayload(token) {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(normalized.length + ((4 - normalized.length % 4) % 4), "=");
+    return JSON.parse(atob(padded));
+  } catch {
+    return null;
+  }
+}
+
+function _hasValidStoredSession() {
   const token = localStorage.getItem("pp_token");
+  if (!token) return false;
+
+  const payload = _parseJwtPayload(token);
+  if (!payload?.exp) {
+    _clearStoredSession();
+    return false;
+  }
+
+  if ((payload.exp * 1000) <= Date.now()) {
+    _clearStoredSession();
+    return false;
+  }
+
+  return true;
+}
+
+async function _call(endpoint, options = {}) {
+  const token = _hasValidStoredSession() ? localStorage.getItem("pp_token") : null;
   const cfg = {
     headers: {
       "Content-Type": "application/json",
@@ -19,7 +55,15 @@ async function _call(endpoint, options = {}) {
   }
   const res  = await fetch(`${API}${endpoint}`, cfg);
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403) {
+      _clearStoredSession();
+      if (!window.location.pathname.endsWith("index.html")) {
+        window.location.href = "index.html";
+      }
+    }
+    throw new Error(data.error || `HTTP ${res.status}`);
+  }
   return data;
 }
 
@@ -29,10 +73,10 @@ const Auth = {
   login:    (email, pw)          => _call("/auth/login",    { method:"POST", body:{email,password:pw} }),
   profile:  ()                   => _call("/auth/profile"),
   update:   (data)               => _call("/auth/profile",  { method:"PUT",  body:data }),
-  isLoggedIn: ()                 => !!localStorage.getItem("pp_token"),
+  isLoggedIn: ()                 => _hasValidStoredSession(),
   currentUser: ()                => { try { return JSON.parse(localStorage.getItem("pp_user")); } catch { return null; } },
   saveSession(token, user)       { localStorage.setItem("pp_token", token); localStorage.setItem("pp_user", JSON.stringify(user)); },
-  logout()                       { localStorage.removeItem("pp_token"); localStorage.removeItem("pp_user"); window.location.href = "index.html"; },
+  logout()                       { _clearStoredSession(); window.location.href = "index.html"; },
 };
 
 // ── Goals ─────────────────────────────────

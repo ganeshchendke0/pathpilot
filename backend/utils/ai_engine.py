@@ -2,6 +2,7 @@ import os
 import json
 import io
 import re
+import time
 from datetime import datetime
 from config.db import query
 from dotenv import load_dotenv
@@ -21,6 +22,7 @@ GEMINI_CLIENT = None
 GEMINI_LEGACY = None
 GEMINI_ACTIVE_MODEL = None
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_LAST_STATUS = {"source": "fallback", "reason": "uninitialized", "retry_after": None, "model": None}
 GEMINI_MODEL_CANDIDATES = [
     model_name.strip()
     for model_name in (
@@ -30,6 +32,66 @@ GEMINI_MODEL_CANDIDATES = [
     ).split(",")
     if model_name.strip()
 ]
+GEMINI_MODEL_BACKOFF_UNTIL = {}
+GEMINI_DEFAULT_BACKOFF_SECONDS = int(os.getenv("GEMINI_DEFAULT_BACKOFF_SECONDS", "60"))
+
+
+def _set_last_status(source, reason=None, retry_after=None, model=None):
+    """Store the latest AI execution status for API consumers."""
+    global GEMINI_LAST_STATUS
+    GEMINI_LAST_STATUS = {
+        "source": source,
+        "reason": reason,
+        "retry_after": retry_after,
+        "model": model,
+    }
+
+
+def get_last_ai_status():
+    """Return the latest AI generation status."""
+    return dict(GEMINI_LAST_STATUS)
+
+
+def _extract_retry_after_seconds(error):
+    """Best-effort extraction of retry delay from Gemini error messages."""
+    text = str(error)
+    match = re.search(r"retry in ([0-9]+(?:\.[0-9]+)?)s", text, re.IGNORECASE)
+    if match:
+        return max(1, int(float(match.group(1))))
+
+    match = re.search(r"'retryDelay': '([0-9]+)s'", text)
+    if match:
+        return max(1, int(match.group(1)))
+
+    return None
+
+
+def _classify_gemini_error(error):
+    """Classify Gemini failures so the app can degrade gracefully."""
+    text = str(error).upper()
+    if "RESOURCE_EXHAUSTED" in text or "QUOTA EXCEEDED" in text or "429" in text:
+        return "quota_exceeded"
+    if "UNAVAILABLE" in text or "503" in text or "HIGH DEMAND" in text:
+        return "temporarily_unavailable"
+    if "DEADLINE_EXCEEDED" in text or "TIMED OUT" in text or "TIMEOUT" in text:
+        return "timeout"
+    return "generation_failed"
+
+
+def _get_model_backoff_remaining(model_name):
+    """Return remaining backoff seconds for a model, if any."""
+    until_ts = GEMINI_MODEL_BACKOFF_UNTIL.get(model_name)
+    if not until_ts:
+        return 0
+    remaining = int(until_ts - time.time())
+    return max(0, remaining)
+
+
+def _put_model_on_backoff(model_name, error):
+    """Temporarily stop calling a model after quota or availability failures."""
+    retry_after = _extract_retry_after_seconds(error) or GEMINI_DEFAULT_BACKOFF_SECONDS
+    GEMINI_MODEL_BACKOFF_UNTIL[model_name] = time.time() + retry_after
+    return retry_after
 
 
 def _init_gemini():
@@ -90,6 +152,8 @@ def _generate_with_new_sdk(prompt):
     global GEMINI_ACTIVE_MODEL
 
     last_error = None
+    last_reason = "generation_failed"
+    last_retry_after = None
     candidates = []
 
     if GEMINI_ACTIVE_MODEL:
@@ -97,6 +161,12 @@ def _generate_with_new_sdk(prompt):
     candidates.extend([m for m in GEMINI_MODEL_CANDIDATES if m != GEMINI_ACTIVE_MODEL])
 
     for model_name in candidates:
+        remaining = _get_model_backoff_remaining(model_name)
+        if remaining > 0:
+            last_error = RuntimeError(f"Model {model_name} is cooling down. Retry in {remaining}s.")
+            last_reason = "cooldown_active"
+            last_retry_after = remaining
+            continue
         try:
             response = GEMINI_CLIENT.models.generate_content(
                 model=model_name,
@@ -107,14 +177,19 @@ def _generate_with_new_sdk(prompt):
                 if GEMINI_ACTIVE_MODEL != model_name:
                     GEMINI_ACTIVE_MODEL = model_name
                     print(f"Gemini model selected: {model_name}")
+                _set_last_status("gemini", "ok", None, model_name)
                 return text
         except Exception as e:
             last_error = e
+            last_reason = _classify_gemini_error(e)
+            last_retry_after = _put_model_on_backoff(model_name, e)
             print(f"Gemini model '{model_name}' failed: {e}")
 
     if last_error:
+        _set_last_status("fallback", last_reason, last_retry_after, None)
         raise last_error
 
+    _set_last_status("fallback", "no_models_configured", None, None)
     raise RuntimeError("No Gemini models are configured.")
 
 
@@ -123,6 +198,8 @@ def _generate_with_legacy_sdk(prompt):
     global GEMINI_ACTIVE_MODEL
 
     last_error = None
+    last_reason = "generation_failed"
+    last_retry_after = None
     candidates = []
 
     if GEMINI_ACTIVE_MODEL:
@@ -130,6 +207,12 @@ def _generate_with_legacy_sdk(prompt):
     candidates.extend([m for m in GEMINI_MODEL_CANDIDATES if m != GEMINI_ACTIVE_MODEL])
 
     for model_name in candidates:
+        remaining = _get_model_backoff_remaining(model_name)
+        if remaining > 0:
+            last_error = RuntimeError(f"Model {model_name} is cooling down. Retry in {remaining}s.")
+            last_reason = "cooldown_active"
+            last_retry_after = remaining
+            continue
         try:
             model = GEMINI_LEGACY.GenerativeModel(model_name)
             response = model.generate_content(prompt)
@@ -138,14 +221,19 @@ def _generate_with_legacy_sdk(prompt):
                 if GEMINI_ACTIVE_MODEL != model_name:
                     GEMINI_ACTIVE_MODEL = model_name
                     print(f"Gemini model selected: {model_name}")
+                _set_last_status("gemini", "ok", None, model_name)
                 return text
         except Exception as e:
             last_error = e
+            last_reason = _classify_gemini_error(e)
+            last_retry_after = _put_model_on_backoff(model_name, e)
             print(f"Gemini model '{model_name}' failed: {e}")
 
     if last_error:
+        _set_last_status("fallback", last_reason, last_retry_after, None)
         raise last_error
 
+    _set_last_status("fallback", "no_models_configured", None, None)
     raise RuntimeError("No Gemini models are configured.")
 
 
@@ -156,6 +244,7 @@ def safe_generate(prompt):
     """Generate content using Gemini with fallback."""
     try:
         if not GEMINI_ENABLED:
+            _set_last_status("fallback", "gemini_disabled", None, None)
             return fallback_response(prompt)
 
         if GEMINI_CLIENT is not None:
@@ -164,10 +253,13 @@ def safe_generate(prompt):
         if GEMINI_LEGACY is not None:
             return _generate_with_legacy_sdk(prompt)
 
+        _set_last_status("fallback", "gemini_client_unavailable", None, None)
         return fallback_response(prompt)
 
     except Exception as e:
         print(f"Gemini error: {e}")
+        if GEMINI_LAST_STATUS.get("source") != "fallback":
+            _set_last_status("fallback", _classify_gemini_error(e), _extract_retry_after_seconds(e), None)
         return fallback_response(prompt)
 
 

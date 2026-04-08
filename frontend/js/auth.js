@@ -3,8 +3,6 @@
 // ═══════════════════════════════════════════
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (Auth.isLoggedIn()) { window.location.href = "dashboard.html"; return; }
-
   // Tab switching
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
