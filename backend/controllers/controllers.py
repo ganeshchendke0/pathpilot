@@ -20,6 +20,43 @@ def _token(uid, role):
         {"user_id": uid, "role": role, "exp": datetime.now(timezone.utc) + timedelta(hours=Config.JWT_EXPIRY)},
         Config.SECRET_KEY, algorithm="HS256")
 
+
+def _clean_text_list(values):
+    cleaned = []
+    seen = set()
+    for value in values or []:
+        text = str(value or "").strip()
+        if not text:
+            continue
+        key = text.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        cleaned.append(text)
+    return cleaned
+
+
+def _normalize_career_path(path):
+    if not path:
+        return path
+
+    normalized = dict(path)
+    normalized["required_skills"] = _clean_text_list(path.get("required_skills"))
+    normalized["nice_to_have_skills"] = _clean_text_list(path.get("nice_to_have_skills"))
+    normalized["recommended_courses"] = _clean_text_list(path.get("recommended_courses"))
+    normalized["top_companies"] = _clean_text_list(path.get("top_companies"))
+
+    title = str(path.get("title") or "").strip()
+    roles = _clean_text_list(path.get("job_roles"))
+    if title and title.casefold() not in {role.casefold() for role in roles}:
+        roles.insert(0, title)
+    normalized["job_roles"] = roles
+    return normalized
+
+
+def _normalize_career_paths(paths):
+    return [_normalize_career_path(path) for path in paths or []]
+
 # ═══════════════════════════════════════════
 #  AUTH
 # ═══════════════════════════════════════════
@@ -103,13 +140,13 @@ def goal_summary():
 def get_careers():
     search = request.args.get("search","")
     field  = request.args.get("field","")
-    paths  = CareerModel.search(search) if search else CareerModel.get_all(field or None)
-    return jsonify({"career_paths": paths}), 200
+    paths  = CareerModel.search(search, field or None) if search else CareerModel.get_all(field or None)
+    return jsonify({"career_paths": _normalize_career_paths(paths)}), 200
 
 def get_career(pid):
     p = CareerModel.get_by_id(pid)
     if not p: return jsonify({"error": "Not found"}), 404
-    return jsonify({"career_path": p}), 200
+    return jsonify({"career_path": _normalize_career_path(p)}), 200
 
 def save_career(pid):
     CareerModel.save(request.user_id, pid)

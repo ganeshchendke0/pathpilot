@@ -85,10 +85,47 @@ class CareerModel:
         return query("SELECT * FROM career_paths ORDER BY title")
 
     @staticmethod
-    def search(q):
-        return query(
-            "SELECT * FROM career_paths WHERE title ILIKE %s OR field ILIKE %s OR description ILIKE %s ORDER BY title",
-            (f'%{q}%', f'%{q}%', f'%{q}%'))
+    def search(q, field=None):
+        normalized = q.strip().lower()
+        if normalized in {"it", "tech", "technology"}:
+            return CareerModel.get_all(field or "Technology")
+
+        pattern = f"%{q}%"
+        sql = """
+            SELECT *
+            FROM career_paths
+            WHERE (
+                title ILIKE %s
+                OR field ILIKE %s
+                OR description ILIKE %s
+                OR EXISTS (
+                    SELECT 1
+                    FROM unnest(COALESCE(job_roles, ARRAY[]::TEXT[])) AS role
+                    WHERE role ILIKE %s
+                )
+                OR EXISTS (
+                    SELECT 1
+                    FROM unnest(COALESCE(required_skills, ARRAY[]::TEXT[])) AS skill
+                    WHERE skill ILIKE %s
+                )
+                OR EXISTS (
+                    SELECT 1
+                    FROM unnest(COALESCE(nice_to_have_skills, ARRAY[]::TEXT[])) AS bonus_skill
+                    WHERE bonus_skill ILIKE %s
+                )
+                OR EXISTS (
+                    SELECT 1
+                    FROM unnest(COALESCE(quiz_tags, ARRAY[]::TEXT[])) AS tag
+                    WHERE tag ILIKE %s
+                )
+            )
+        """
+        params = [pattern, pattern, pattern, pattern, pattern, pattern, pattern]
+        if field:
+            sql += " AND field=%s"
+            params.append(field)
+        sql += " ORDER BY title"
+        return query(sql, tuple(params))
 
     @staticmethod
     def get_by_id(pid):

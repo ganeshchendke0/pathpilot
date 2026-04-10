@@ -894,17 +894,276 @@ def generate_weekly_report(user_id):
     return safe_generate(prompt)
 
 
+ROADMAP_TEMPLATE_KEYS = {
+    "Full Stack Developer": "fullstack",
+    "Frontend Developer": "frontend",
+    "Backend Developer": "backend",
+    "Data Scientist": "data",
+    "AI / ML Engineer": "ai_ml",
+    "Cybersecurity Analyst": "cybersecurity",
+    "Mobile App Developer": "mobile",
+    "Cloud & DevOps Engineer": "devops",
+    "QA / Automation Engineer": "qa",
+    "Network Engineer": "network",
+    "Database Administrator": "database",
+    "IT Support / Systems Administrator": "support",
+    "Game Developer": "game",
+}
+
+
+ROADMAP_TEMPLATES = {
+    "fullstack": [
+        ("Web Basics", "Learn HTML, CSS, JavaScript, Git, and how the web works.", ["MDN", "freeCodeCamp"]),
+        ("JavaScript Practice", "Build small UI features and practice DOM, ES6, and async flows.", ["JavaScript.info", "Frontend Mentor"]),
+        ("React Foundations", "Create reusable components, forms, routing, and state flows.", ["React Docs", "Scrimba"]),
+        ("Backend APIs", "Learn Node.js or Python backend basics, REST APIs, and auth flows.", ["Node.js Docs", "FastAPI Docs"]),
+        ("Databases", "Design tables, write SQL queries, and connect your API to a database.", ["PostgreSQL Docs", "SQLBolt"]),
+        ("Full Stack Project", "Build an end-to-end app with login, CRUD, and deployment setup.", ["GitHub", "Render"]),
+        ("Testing and Deployment", "Add tests, environment configs, CI basics, and production deployment.", ["Playwright Docs", "GitHub Actions"]),
+        ("Portfolio and Interviews", "Polish resume, portfolio, and prepare for developer interviews.", ["LeetCode", "InterviewBit"]),
+    ],
+    "frontend": [
+        ("Frontend Basics", "Learn HTML, CSS, responsive design, Git, and browser fundamentals.", ["MDN", "freeCodeCamp"]),
+        ("Modern JavaScript", "Practice arrays, objects, fetch, async/await, and DOM patterns.", ["JavaScript.info", "Exercism"]),
+        ("React Core", "Build components, props, state, events, and routing.", ["React Docs", "Scrimba"]),
+        ("UI Systems", "Work with forms, reusable patterns, accessibility, and design systems.", ["A11y Project", "Frontend Mentor"]),
+        ("TypeScript and API Integration", "Add typed components and connect frontend apps to APIs.", ["TypeScript Docs", "REST API Tutorial"]),
+        ("Testing and Performance", "Write UI tests and improve loading, rendering, and accessibility.", ["Testing Library", "Lighthouse"]),
+        ("Portfolio Project", "Build and deploy a polished frontend project.", ["Vercel", "Netlify"]),
+        ("Interview Prep", "Prepare projects, resume, GitHub, and frontend interview questions.", ["GreatFrontEnd", "LeetCode"]),
+    ],
+    "backend": [
+        ("Programming and Git", "Strengthen Python or Node.js basics, CLI skills, and Git workflows.", ["Python Docs", "Git Docs"]),
+        ("Server Fundamentals", "Learn HTTP, routing, request handling, and backend project structure.", ["MDN HTTP", "FastAPI Docs"]),
+        ("API Development", "Build REST APIs with validation, auth, and error handling.", ["Postman", "Node.js Docs"]),
+        ("Databases", "Model relational data, write SQL, and build CRUD workflows.", ["PostgreSQL Docs", "SQLBolt"]),
+        ("Security and Architecture", "Add authentication, authorization, logging, and clean layering.", ["OWASP", "System Design Primer"]),
+        ("Caching and Queues", "Understand Redis, background jobs, and performance basics.", ["Redis Docs", "RabbitMQ Tutorials"]),
+        ("Deployment", "Containerize, configure environments, and deploy backend services.", ["Docker Docs", "Render"]),
+        ("Portfolio and Interviews", "Ship a production-style API project and prepare for backend interviews.", ["GitHub", "LeetCode"]),
+    ],
+    "data": [
+        ("Python and SQL", "Build confidence with Python, SQL, notebooks, and data cleaning.", ["Kaggle Learn", "Mode SQL"]),
+        ("Statistics", "Cover probability, distributions, hypothesis testing, and core metrics.", ["StatQuest", "Khan Academy"]),
+        ("Data Analysis", "Use pandas, NumPy, and visualization tools to analyze real datasets.", ["Pandas Docs", "Matplotlib Docs"]),
+        ("Machine Learning Basics", "Learn supervised learning, model evaluation, and feature engineering.", ["scikit-learn", "Hands-On ML"]),
+        ("Projects", "Create end-to-end analysis projects with storytelling and dashboards.", ["Tableau Public", "GitHub"]),
+        ("Advanced Topics", "Explore time series, NLP, experimentation, or recommendation basics.", ["Coursera", "Fast.ai"]),
+        ("Portfolio and Communication", "Document projects, insights, and business recommendations clearly.", ["Notion", "Medium"]),
+        ("Interview Prep", "Practice SQL, case studies, and machine learning interview questions.", ["StrataScratch", "Interview Query"]),
+    ],
+    "ai_ml": [
+        ("Python and Math", "Reinforce Python, linear algebra, probability, and basic optimization.", ["Khan Academy", "NumPy Docs"]),
+        ("ML Fundamentals", "Train classical ML models and learn evaluation methods.", ["scikit-learn", "Kaggle Learn"]),
+        ("Deep Learning", "Study neural networks, CNNs, RNNs, and practical training loops.", ["PyTorch Docs", "DeepLearning.AI"]),
+        ("Model Deployment", "Serve models through APIs and connect them to applications.", ["FastAPI Docs", "Docker Docs"]),
+        ("MLOps Basics", "Track experiments, version models, and understand reproducible workflows.", ["MLflow Docs", "Weights & Biases"]),
+        ("Applied AI Project", "Ship an end-to-end ML or AI project with measurable outcomes.", ["GitHub", "Hugging Face"]),
+        ("Specialization", "Explore LLM apps, computer vision, or recommendation systems.", ["Hugging Face", "Papers with Code"]),
+        ("Interview Prep", "Prepare for ML coding rounds, project deep dives, and system questions.", ["LeetCode", "Machine Learning Interviews Book"]),
+    ],
+    "cybersecurity": [
+        ("Networking and Linux", "Learn TCP/IP, Linux commands, logs, and system basics.", ["TryHackMe", "Cisco Skills for All"]),
+        ("Security Fundamentals", "Cover access control, encryption, common threats, and security hygiene.", ["CompTIA Security+", "OWASP"]),
+        ("Hands-on Labs", "Practice scanning, enumeration, SIEM basics, and incident workflows.", ["Hack The Box", "Splunk Training"]),
+        ("Scripting and Automation", "Use Python and Bash for automation, parsing, and investigations.", ["Python Docs", "Bash Guide"]),
+        ("Defensive Security", "Study monitoring, alerting, hardening, and response playbooks.", ["Blue Team Labs", "Microsoft Learn"]),
+        ("Offensive Basics", "Understand web testing, pentest workflow, and vulnerability reporting.", ["PortSwigger Academy", "OWASP Juice Shop"]),
+        ("Portfolio and Certifications", "Document labs, reports, and prepare for starter certifications.", ["GitHub", "CompTIA"]),
+        ("Interview Prep", "Revise scenarios, terminology, and hands-on walkthroughs.", ["TryHackMe", "Cybrary"]),
+    ],
+    "mobile": [
+        ("Programming Foundations", "Strengthen JavaScript or Dart and mobile app architecture basics.", ["JavaScript.info", "Dart Docs"]),
+        ("Framework Setup", "Start React Native or Flutter and build core screens and navigation.", ["React Native Docs", "Flutter Docs"]),
+        ("App Features", "Handle forms, local state, API calls, and storage.", ["Expo Docs", "Firebase Docs"]),
+        ("Native Concepts", "Learn permissions, device APIs, build variants, and debugging.", ["Android Docs", "Apple Developer"]),
+        ("State and Testing", "Improve state handling, testing, and app reliability.", ["Redux Toolkit", "Testing Library"]),
+        ("App Project", "Build a complete mobile app with auth, APIs, and polished UI.", ["GitHub", "Figma"]),
+        ("Release Prep", "Prepare store assets, builds, analytics, and performance fixes.", ["Google Play Console", "App Store Connect"]),
+        ("Portfolio and Interviews", "Document mobile projects and practice platform questions.", ["GitHub", "LeetCode"]),
+    ],
+    "devops": [
+        ("Linux and Scripting", "Learn Linux commands, shell scripting, processes, and permissions.", ["Linux Journey", "Bash Guide"]),
+        ("Version Control and CI", "Use Git well and automate checks with CI pipelines.", ["Git Docs", "GitHub Actions"]),
+        ("Containers", "Understand Docker images, containers, networks, and compose basics.", ["Docker Docs", "Play with Docker"]),
+        ("Cloud Fundamentals", "Study compute, storage, networking, and IAM in a cloud platform.", ["AWS Skill Builder", "Microsoft Learn"]),
+        ("Infrastructure as Code", "Provision infra with Terraform and manage repeatable environments.", ["Terraform Docs", "KodeKloud"]),
+        ("Kubernetes and Observability", "Deploy workloads, logs, metrics, and health checks.", ["Kubernetes Docs", "Prometheus Docs"]),
+        ("DevOps Project", "Build and deploy a CI/CD pipeline for a real project.", ["GitHub", "Render"]),
+        ("Interview Prep", "Prepare cloud, Docker, CI/CD, and troubleshooting questions.", ["KodeKloud", "DevOps Roadmap"]),
+    ],
+    "qa": [
+        ("Testing Basics", "Learn SDLC, STLC, test cases, bug reports, and quality mindset.", ["Guru99", "ISTQB"]),
+        ("Manual Testing Practice", "Test real apps, write cases, and manage defects clearly.", ["Jira", "TestRail"]),
+        ("API and Database Testing", "Use Postman and SQL to validate backend flows.", ["Postman", "SQLBolt"]),
+        ("Automation Setup", "Start Selenium or Playwright and automate core browser scenarios.", ["Playwright Docs", "Selenium Docs"]),
+        ("Framework Design", "Organize test suites, locators, fixtures, and reusable utilities.", ["Test Automation University", "GitHub"]),
+        ("CI and Reporting", "Run tests in CI and publish reliable reports.", ["GitHub Actions", "Allure"]),
+        ("Portfolio Project", "Create a test automation suite for a sample product.", ["Demo QA", "GitHub"]),
+        ("Interview Prep", "Prepare testing concepts, SQL, API, and automation interview rounds.", ["ISTQB", "Interview Questions"]),
+    ],
+    "network": [
+        ("Network Foundations", "Learn OSI, TCP/IP, subnetting, routing, and switching.", ["Cisco CCNA", "Professor Messer"]),
+        ("Hands-on Labs", "Configure routers, switches, VLANs, and troubleshoot common faults.", ["Cisco Packet Tracer", "GNS3"]),
+        ("Linux and Services", "Practice Linux networking tools, DNS, DHCP, and monitoring.", ["Linux Journey", "Wireshark"]),
+        ("Security Basics", "Study firewalls, VPNs, ACLs, and secure network design.", ["CompTIA Network+", "Fortinet Training"]),
+        ("Automation", "Use Python to automate repetitive network tasks and inventory checks.", ["Python Docs", "Netmiko"]),
+        ("Cloud and Enterprise Networking", "Explore hybrid networking, load balancers, and enterprise topologies.", ["AWS Networking", "Azure Networking"]),
+        ("Certification and Labs", "Document lab work and prepare for CCNA or Network+.", ["Cisco Skills for All", "Juniper Learning"]),
+        ("Interview Prep", "Revise troubleshooting, protocols, and design scenarios.", ["Packet Pushers", "Interview Questions"]),
+    ],
+    "database": [
+        ("SQL and Data Modeling", "Master joins, normalization, indexing, and schema design.", ["PostgreSQL Docs", "SQLBolt"]),
+        ("Administration Basics", "Handle installs, backups, restores, users, and permissions.", ["PostgreSQL Tutorial", "MySQL Docs"]),
+        ("Performance Tuning", "Read execution plans and optimize slow queries and indexes.", ["EXPLAIN Docs", "Use The Index, Luke"]),
+        ("Reliability", "Learn replication, failover, monitoring, and backup strategies.", ["Percona", "pgAdmin"]),
+        ("Cloud Databases", "Work with managed databases and operational best practices.", ["AWS RDS", "Azure SQL"]),
+        ("Automation", "Script routine maintenance and health checks.", ["Python Docs", "Bash Guide"]),
+        ("Project and Documentation", "Run a database project with documented admin workflows.", ["GitHub", "Notion"]),
+        ("Interview Prep", "Practice SQL, performance, and admin scenario questions.", ["LeetCode SQL", "Interview Questions"]),
+    ],
+    "support": [
+        ("IT Support Basics", "Cover hardware, OS basics, troubleshooting flow, and documentation.", ["Google IT Support", "CompTIA A+"]),
+        ("Operating Systems", "Practice Windows, Linux, users, services, and system setup.", ["Microsoft Learn", "Linux Journey"]),
+        ("Networking Basics", "Learn IP, Wi-Fi, DNS, printers, and office connectivity issues.", ["Professor Messer", "Cisco Skills for All"]),
+        ("Support Tools", "Use ticketing systems, remote access tools, and support workflows.", ["Jira Service Management", "Freshservice"]),
+        ("System Administration", "Understand Active Directory, policies, backups, and access management.", ["Microsoft Learn", "PowerShell Docs"]),
+        ("Security and Compliance", "Learn endpoint safety, patching, MFA, and user awareness.", ["Microsoft Security", "Google Workspace Admin"]),
+        ("Hands-on Lab", "Document common fixes and build a mini support knowledge base.", ["Notion", "GitHub"]),
+        ("Interview Prep", "Prepare troubleshooting scenarios and user-support communication rounds.", ["CompTIA", "Help Desk Interview Questions"]),
+    ],
+    "game": [
+        ("Programming and Engines", "Learn C# or C++ fundamentals and game engine basics.", ["Unity Learn", "Unreal Docs"]),
+        ("Gameplay Systems", "Build movement, interactions, UI, and scene management.", ["Brackeys", "GameDev.tv"]),
+        ("Physics and Animation", "Work with collisions, animation states, and responsive controls.", ["Unity Docs", "Unreal Learning"]),
+        ("Game Design Basics", "Study level design, balancing, and player feedback loops.", ["GDC Talks", "Extra Credits"]),
+        ("Advanced Features", "Add AI, save systems, audio, and optimization.", ["Unity Learn", "FMOD"]),
+        ("Game Project", "Build a playable prototype with menus, polish, and testing.", ["GitHub", "itch.io"]),
+        ("Publishing Basics", "Prepare builds, store pages, trailers, and portfolio materials.", ["Steamworks Docs", "Google Play Console"]),
+        ("Interview Prep", "Practice engine, math, gameplay, and portfolio discussions.", ["LeetCode", "Game Dev Interviews"]),
+    ],
+}
+
+
+def _roadmap_item(week_number, title, description, resources):
+    return {
+        "week_number": week_number,
+        "title": title,
+        "description": description,
+        "resources": resources[:4],
+    }
+
+
+def _normalize_roadmap_items(items, weeks):
+    normalized = []
+    for idx, item in enumerate(items or [], start=1):
+        if idx > weeks or not isinstance(item, dict):
+            break
+        title = str(item.get("title") or f"Week {idx} Focus").strip()
+        description = str(item.get("description") or "Keep building practical skills.").strip()
+        resources = item.get("resources") if isinstance(item.get("resources"), list) else []
+        resources = [str(resource).strip() for resource in resources if str(resource).strip()]
+        normalized.append(_roadmap_item(idx, title, description, resources or ["Docs", "Practice"]))
+    return normalized
+
+
+def _build_template_roadmap(template_key, weeks):
+    base_plan = ROADMAP_TEMPLATES.get(template_key, [])
+    plan = list(base_plan)
+    extras = [
+        ("Capstone Build", "Ship a realistic project that proves your skills end to end.", ["GitHub", "Documentation"]),
+        ("Portfolio Polish", "Refine README files, demos, and resume bullets from your work.", ["GitHub", "Notion"]),
+        ("Interview and Applications", "Practice interviews and apply to internships or entry-level roles.", ["LeetCode", "LinkedIn"]),
+    ]
+
+    while len(plan) < weeks:
+        plan.append(extras[(len(plan) - len(base_plan)) % len(extras)])
+
+    return [
+        _roadmap_item(week, title, description, resources)
+        for week, (title, description, resources) in enumerate(plan[:weeks], start=1)
+    ]
+
+
+def _build_skill_based_roadmap(career, weeks):
+    title = career.get("title", "Career")
+    skills = list(career.get("required_skills") or [])
+    courses = list(career.get("recommended_courses") or [])
+
+    plan = [
+        _roadmap_item(1, f"{title} Fundamentals", f"Understand the core concepts, tools, and day-to-day work in {title}.", courses[:2] or ["Official Docs", "YouTube"]),
+    ]
+
+    for skill in skills[:max(1, weeks - 3)]:
+        if len(plan) >= weeks - 2:
+            break
+        plan.append(
+            _roadmap_item(
+                len(plan) + 1,
+                f"Core Skill: {skill}",
+                f"Practice {skill} with small hands-on exercises and notes you can revisit.",
+                courses[:2] or ["Official Docs", "Practice Project"],
+            )
+        )
+
+    for extra_title, extra_desc in [
+        ("Project Work", "Build one solid portfolio project that shows practical ability."),
+        ("Portfolio and Resume", "Turn your work into a portfolio, polished GitHub, and resume bullets."),
+        ("Interview Prep", "Revise fundamentals, solve role-specific questions, and start applying."),
+    ]:
+        if len(plan) < weeks:
+            plan.append(_roadmap_item(len(plan) + 1, extra_title, extra_desc, courses[:2] or ["Docs", "Practice"]))
+
+    return plan[:weeks]
+
+
+def _generate_ai_roadmap(career, weeks):
+    prompt = f"""Generate a {weeks}-week learning roadmap for this PathPilot career.
+Return only valid JSON array with objects: week_number, title, description, resources.
+
+Career title: {career.get('title')}
+Field: {career.get('field')}
+Required skills: {career.get('required_skills')}
+Nice to have skills: {career.get('nice_to_have_skills')}
+Recommended courses: {career.get('recommended_courses')}
+Common job roles: {career.get('job_roles')}
+
+Rules:
+- one milestone per week
+- practical and beginner-friendly
+- include projects, portfolio, and interview prep near the end
+- resources must be a short array of strings
+- no markdown, no explanation, JSON only"""
+
+    response = safe_generate(prompt)
+    return _normalize_roadmap_items(json.loads(response), weeks)
+
+
 # ✅ 6. Roadmap Generator
 def generate_roadmap_milestones(career_id, weeks):
     """Generate learning roadmap milestones"""
     try:
-        prompt = f"Generate a {weeks}-week learning roadmap for career path {career_id}. Return as JSON array with week_number, title, description, and resources."
-        response = safe_generate(prompt)
+        career = query(
+            """SELECT title, field, required_skills, nice_to_have_skills,
+                      recommended_courses, job_roles
+               FROM career_paths
+               WHERE id=%s""",
+            (career_id,),
+            fetch="one"
+        ) or {}
+
+        template_key = ROADMAP_TEMPLATE_KEYS.get(career.get("title"))
+        if template_key:
+            return _build_template_roadmap(template_key, weeks)
 
         try:
-            return json.loads(response)
-        except json.JSONDecodeError:
-            return json.loads(fallback_response("roadmap"))
+            ai_plan = _generate_ai_roadmap(career, weeks)
+            if ai_plan:
+                return ai_plan
+        except Exception as parse_error:
+            print(f"AI roadmap fallback for {career.get('title', career_id)}: {parse_error}")
+
+        return _build_skill_based_roadmap(career, weeks)
 
     except Exception as e:
         print(f"Error generating roadmap: {e}")
