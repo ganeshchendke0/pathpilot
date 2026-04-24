@@ -159,6 +159,22 @@
     }
     .guide-step-text { font-size: 0.88rem; color: var(--text-2); line-height: 1.6; }
 
+    .focus-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .focus-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     @media (max-width: 900px) {
       .focus-layout { grid-template-columns: 1fr; padding: 4px 20px 24px; }
     }
@@ -166,7 +182,12 @@
 </head>
 <body>
   <nav class="navbar">
-    <div class="nav-brand"><div class="nav-brand-icon">PP</div> PathPilot</div>
+    <div class="nav-brand"><div class="nav-brand-icon">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="8"></circle>
+        <path d="M12 4v8l5 3"></path>
+      </svg>
+    </div> PathPilot</div>
     <div class="nav-links">
       <a href="dashboard.html" class="nav-link">Dashboard</a>
       <a href="focus.html" class="nav-link active">Focus</a>
@@ -210,7 +231,11 @@
 
         <div class="timer-controls">
           <button id="start-btn" class="btn btn-ghost">Start</button>
-          <button id="reset-btn" class="btn btn-ghost btn-icon" title="Reset">R</button>
+          <button id="reset-btn" class="btn btn-ghost btn-icon" title="Reset">
+            <span class="focus-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>
+            </span>
+          </button>
         </div>
 
         <div>

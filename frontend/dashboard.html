@@ -42,7 +42,35 @@
     }
     .sidebar-link:hover { color: var(--text-1); background: rgba(255, 255, 255, 0.08); transform: translateX(4px); }
     .sidebar-link.active { color: var(--text-1); background: rgba(79, 70, 229, 0.16); box-shadow: var(--glow-indigo); }
-    .sl-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .sl-icon,
+    .qa-icon,
+    .stat-icon,
+    .goal-cat-icon,
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sl-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .sl-icon svg,
+    .qa-icon svg,
+    .stat-icon svg,
+    .goal-cat-icon svg,
+    .nav-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
 
     .dash-main { padding: 8px 24px 32px 24px; display: flex; flex-direction: column; gap: 28px; }
 
@@ -120,7 +148,14 @@
     .goal-meta-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
     .goal-title { font-family: var(--font-display); font-size: 1rem; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
     .goal-desc { color: var(--text-2); }
-    .goal-cat-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .goal-cat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      color: var(--text-1);
+      background: rgba(79, 70, 229, 0.14);
+      flex-shrink: 0;
+    }
     .goal-progress-area { margin: 8px 0 4px; }
     .goal-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 10px; }
     .goal-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s; }
@@ -182,8 +217,16 @@
       box-shadow: var(--shadow-sm);
     }
     .quick-action-btn:hover { border-color: rgba(79, 70, 229, 0.3); background: rgba(255, 255, 255, 0.09); transform: translateY(-4px) scale(1.01); box-shadow: var(--glow-indigo); }
-    .qa-icon { font-size: 1.6rem; transition: transform 0.25s var(--ease-out); }
+    .qa-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      color: var(--text-1);
+      background: rgba(79, 70, 229, 0.14);
+      transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+    }
     .quick-action-btn:hover .qa-icon { transform: scale(1.12) rotate(-4deg); }
+    .quick-action-btn:hover .qa-icon { box-shadow: var(--glow-indigo); }
     .qa-label { font-size: 0.82rem; font-weight: 700; color: var(--text-2); }
 
     @media (max-width: 1120px) {
@@ -206,7 +249,12 @@
 </head>
 <body>
   <nav class="navbar">
-    <div class="nav-brand"><div class="nav-brand-icon">PP</div> PathPilot</div>
+    <div class="nav-brand"><div class="nav-brand-icon">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="8"></circle>
+        <path d="M12 4v8l5 3"></path>
+      </svg>
+    </div> PathPilot</div>
     <div class="nav-links">
       <a href="dashboard.html" class="nav-link active">Dashboard</a>
       <a href="career.html" class="nav-link hide-mobile">Careers</a>
@@ -214,7 +262,12 @@
       <a href="leaderboard.html" class="nav-link hide-mobile">Board</a>
       <a href="ai.html" class="nav-link hide-mobile">AI</a>
       <div class="notif-wrapper">
-        <button class="btn btn-ghost btn-icon notif-btn" id="notif-btn" title="Notifications">N<span class="notif-dot"></span></button>
+        <button class="btn btn-ghost btn-icon notif-btn" id="notif-btn" title="Notifications">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"></path><path d="M10 17a2 2 0 0 0 4 0"></path></svg>
+          </span>
+          <span class="notif-dot"></span>
+        </button>
         <div class="notif-dropdown" id="notif-dropdown">
           <div id="notif-panel"><div class="notif-item"><p class="text-small text-muted">Loading...</p></div></div>
         </div>
@@ -230,20 +283,20 @@
   <div class="page-wrapper">
     <div class="dash-layout">
       <aside class="sidebar">
-        <a href="dashboard.html" class="sidebar-link active"><span class="sl-icon">O</span> Overview</a>
-        <a href="career.html" class="sidebar-link"><span class="sl-icon">C</span> Careers</a>
-        <a href="roadmap.html" class="sidebar-link"><span class="sl-icon">R</span> My Roadmap</a>
+        <a href="dashboard.html" class="sidebar-link active"><span class="sl-icon"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5 10.5V20h14v-9.5"></path></svg></span> Overview</a>
+        <a href="career.html" class="sidebar-link"><span class="sl-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v6"></path><path d="M4 20V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"></path><path d="M9 6V4h6v2"></path></svg></span> Careers</a>
+        <a href="roadmap.html" class="sidebar-link"><span class="sl-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16"></path><path d="M6 16V8"></path><path d="M12 16V5"></path><path d="M18 16v-4"></path></svg></span> My Roadmap</a>
         <div class="sidebar-sep"></div>
         <div class="sidebar-label">Study</div>
-        <a href="focus.html" class="sidebar-link"><span class="sl-icon">F</span> Focus Timer</a>
+        <a href="focus.html" class="sidebar-link"><span class="sl-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"></circle><path d="M12 13 15.5 9.5"></path><path d="M9 3h6"></path></svg></span> Focus Timer</a>
         <div class="sidebar-sep"></div>
         <div class="sidebar-label">Wellbeing</div>
-        <a href="wellness.html" class="sidebar-link"><span class="sl-icon">W</span> Wellness</a>
-        <a href="leaderboard.html" class="sidebar-link"><span class="sl-icon">L</span> Leaderboard</a>
-        <a href="ai.html" class="sidebar-link"><span class="sl-icon">AI</span> Assistant</a>
+        <a href="wellness.html" class="sidebar-link"><span class="sl-icon"><svg viewBox="0 0 24 24"><path d="M12 21s-6-4.35-8.5-8A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 8.5 7c-2.5 3.65-8.5 8-8.5 8Z"></path></svg></span> Wellness</a>
+        <a href="leaderboard.html" class="sidebar-link"><span class="sl-icon"><svg viewBox="0 0 24 24"><path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10v3a5 5 0 0 1-10 0Z"></path><path d="M7 6H5a2 2 0 0 0 2 2"></path><path d="M17 6h2a2 2 0 0 1-2 2"></path></svg></span> Leaderboard</a>
+        <a href="ai.html" class="sidebar-link"><span class="sl-icon"><svg viewBox="0 0 24 24"><path d="M12 3v3"></path><path d="M18.36 6.64 16.24 8.76"></path><path d="M21 12h-3"></path><path d="M18.36 17.36 16.24 15.24"></path><path d="M12 21v-3"></path><path d="M7.76 15.24 5.64 17.36"></path><path d="M6 12H3"></path><path d="M7.76 8.76 5.64 6.64"></path><circle cx="12" cy="12" r="4"></circle></svg></span> Assistant</a>
         <div style="margin-top:auto">
           <div class="sidebar-sep"></div>
-          <div class="sidebar-link" onclick="Auth.logout()"><span class="sl-icon">X</span> Sign Out</div>
+          <div class="sidebar-link" onclick="Auth.logout()"><span class="sl-icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg></span> Sign Out</div>
         </div>
       </aside>
 
@@ -278,17 +331,17 @@
 
             <div class="streak-card">
               <div class="streak-kicker">Consistency</div>
-              <div class="streak-value"><span class="streak-flame">F</span><span id="streak-highlight">0</span></div>
+              <div class="streak-value"><span class="streak-flame">🔥</span><span id="streak-highlight">0</span></div>
               <div class="streak-sub">days in a row building momentum</div>
             </div>
           </div>
         </div>
 
         <div class="stats-grid">
-          <div class="stat-card"><div class="stat-icon">G</div><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Goals</div></div>
-          <div class="stat-card"><div class="stat-icon">D</div><div class="stat-num" id="stat-completed">0</div><div class="stat-label">Completed</div></div>
-          <div class="stat-card"><div class="stat-icon">P</div><div class="stat-num" id="stat-inprog">0</div><div class="stat-label">In Progress</div></div>
-          <div class="stat-card"><div class="stat-icon">H</div><div class="stat-num" id="stat-hours">0</div><div class="stat-label">Study Hours</div></div>
+          <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M12 20V10"></path><path d="m18 20-6-6-6 6"></path><path d="M6 4h12"></path></svg></div><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Goals</div></div>
+          <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"></path></svg></div><div class="stat-num" id="stat-completed">0</div><div class="stat-label">Completed</div></div>
+          <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93 7.76 7.76"></path><path d="m16.24 16.24 2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="m4.93 19.07 2.83-2.83"></path><path d="m16.24 7.76 2.83-2.83"></path></svg></div><div class="stat-num" id="stat-inprog">0</div><div class="stat-label">In Progress</div></div>
+          <div class="stat-card"><div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><path d="M12 7v5l3 3"></path></svg></div><div class="stat-num" id="stat-hours">0</div><div class="stat-label">Study Hours</div></div>
         </div>
 
         <div class="dash-cols">
@@ -299,20 +352,20 @@
                 <button class="btn btn-primary btn-sm" id="add-goal-btn">Add Goal</button>
               </div>
               <div class="goals-grid" id="goals-grid">
-                <div class="empty-state" style="grid-column:1/-1"><div class="empty-emoji">...</div><p>Loading...</p></div>
+                <div class="empty-state" style="grid-column:1/-1"><div class="empty-emoji">&middot;&middot;&middot;</div><p>Loading...</p></div>
               </div>
             </div>
 
             <div>
               <div class="section-header"><div class="section-title">Quick Actions</div></div>
               <div class="quick-actions-grid">
-                <a href="focus.html" class="quick-action-btn"><div class="qa-icon">F</div><div class="qa-label">Start Focus</div></a>
-                <a href="career.html" class="quick-action-btn"><div class="qa-icon">C</div><div class="qa-label">Explore Careers</div></a>
-                <a href="wellness.html" class="quick-action-btn"><div class="qa-icon">W</div><div class="qa-label">Log Mood</div></a>
-                <a href="roadmap.html" class="quick-action-btn"><div class="qa-icon">R</div><div class="qa-label">My Roadmap</div></a>
-                <a href="leaderboard.html" class="quick-action-btn"><div class="qa-icon">L</div><div class="qa-label">Leaderboard</div></a>
-                <a href="ai.html" class="quick-action-btn"><div class="qa-icon">AI</div><div class="qa-label">AI Assistant</div></a>
-                <div class="quick-action-btn" onclick="openAddGoal()"><div class="qa-icon">+</div><div class="qa-label">New Goal</div></div>
+                <a href="focus.html" class="quick-action-btn"><div class="qa-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"></circle><path d="M12 13 15.5 9.5"></path><path d="M9 3h6"></path></svg></div><div class="qa-label">Start Focus</div></a>
+                <a href="career.html" class="quick-action-btn"><div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v6"></path><path d="M4 20V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"></path><path d="M9 6V4h6v2"></path></svg></div><div class="qa-label">Explore Careers</div></a>
+                <a href="wellness.html" class="quick-action-btn"><div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M12 21s-6-4.35-8.5-8A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 8.5 7c-2.5 3.65-8.5 8-8.5 8Z"></path></svg></div><div class="qa-label">Log Mood</div></a>
+                <a href="roadmap.html" class="quick-action-btn"><div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16"></path><path d="M6 16V8"></path><path d="M12 16V5"></path><path d="M18 16v-4"></path></svg></div><div class="qa-label">My Roadmap</div></a>
+                <a href="leaderboard.html" class="quick-action-btn"><div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10v3a5 5 0 0 1-10 0Z"></path><path d="M7 6H5a2 2 0 0 0 2 2"></path><path d="M17 6h2a2 2 0 0 1-2 2"></path></svg></div><div class="qa-label">Leaderboard</div></a>
+                <a href="ai.html" class="quick-action-btn"><div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M12 3v3"></path><path d="M18.36 6.64 16.24 8.76"></path><path d="M21 12h-3"></path><path d="M18.36 17.36 16.24 15.24"></path><path d="M12 21v-3"></path><path d="M7.76 15.24 5.64 17.36"></path><path d="M6 12H3"></path><path d="M7.76 8.76 5.64 6.64"></path><circle cx="12" cy="12" r="4"></circle></svg></div><div class="qa-label">AI Assistant</div></a>
+                <div class="quick-action-btn" onclick="openAddGoal()"><div class="qa-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg></div><div class="qa-label">New Goal</div></div>
               </div>
             </div>
           </div>
@@ -349,7 +402,7 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-title" id="modal-title">New Goal</div>
-        <button class="modal-close">x</button>
+        <button class="modal-close" aria-label="Close modal">&times;</button>
       </div>
       <form id="goal-form" style="display:flex;flex-direction:column;gap:16px">
         <div class="form-group">

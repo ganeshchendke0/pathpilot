@@ -127,7 +127,12 @@ async function loadGoals() {
 }
 
 function goalCard(goal) {
-  const catIcons = { academic: "A", career: "C", personal: "P", skill: "S" };
+  const catIcons = {
+    academic: '<svg viewBox="0 0 24 24"><path d="M4 19.5V6.5A2.5 2.5 0 0 1 6.5 4H20"></path><path d="M8 8h8"></path><path d="M8 12h8"></path><path d="M8 16h5"></path></svg>',
+    career: '<svg viewBox="0 0 24 24"><path d="M10 20v-6a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v6"></path><path d="M4 20V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"></path><path d="M9 6V4h6v2"></path></svg>',
+    personal: '<svg viewBox="0 0 24 24"><path d="M12 21s-6-4.35-8.5-8A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 8.5 7c-2.5 3.65-8.5 8-8.5 8Z"></path></svg>',
+    skill: '<svg viewBox="0 0 24 24"><path d="M14.7 6.3a2.5 2.5 0 1 1 3 3L9 18l-4 1 1-4 8.7-8.7Z"></path></svg>',
+  };
   const description = goal.description ? esc(goal.description.slice(0, 80)) : "";
   const needsEllipsis = goal.description && goal.description.length > 80;
 
@@ -142,7 +147,7 @@ function goalCard(goal) {
           <h4 class="goal-title">${esc(goal.title)}</h4>
           ${description ? `<p class="goal-desc text-small">${description}${needsEllipsis ? "..." : ""}</p>` : ""}
         </div>
-        <div class="goal-cat-icon">${catIcons[goal.category] || "G"}</div>
+        <div class="goal-cat-icon">${catIcons[goal.category] || '<svg viewBox="0 0 24 24"><path d="M12 20V10"></path><path d="m18 20-6-6-6 6"></path><path d="M6 4h12"></path></svg>'}</div>
       </div>
       <div class="goal-progress-area">
         <div class="flex justify-between" style="font-size:.78rem;color:var(--text-2);margin-bottom:6px">
@@ -154,8 +159,8 @@ function goalCard(goal) {
       <div class="goal-footer">
         <span class="text-small text-muted">${goal.deadline ? fmtDate(goal.deadline) : "No deadline"}</span>
         <div class="goal-actions">
-          <button class="btn btn-icon btn-ghost btn-sm" onclick="event.stopPropagation();openEditGoal('${goal.id}')" title="Edit">E</button>
-          <button class="btn btn-icon btn-danger btn-sm" onclick="event.stopPropagation();deleteGoal('${goal.id}')" title="Delete">D</button>
+          <button class="btn btn-icon btn-ghost btn-sm" onclick="event.stopPropagation();openEditGoal('${goal.id}')" title="Edit"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
+          <button class="btn btn-icon btn-danger btn-sm" onclick="event.stopPropagation();deleteGoal('${goal.id}')" title="Delete"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg></button>
         </div>
       </div>
     </div>`;
