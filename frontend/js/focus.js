@@ -83,7 +83,7 @@ function updateDisplay() {
   const pct   = ((total - secondsLeft) / total) * 100;
   const circleEl = document.getElementById("timer-ring");
   if (circleEl) {
-    const circumference = 2 * Math.PI * 110;
+    const circumference = 2 * Math.PI * 122;
     circleEl.style.strokeDasharray  = circumference;
     circleEl.style.strokeDashoffset = circumference - (pct / 100) * circumference;
   }

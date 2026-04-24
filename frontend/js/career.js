@@ -37,8 +37,32 @@ function renderCareerCards(paths, grid) {
   grid.innerHTML = paths.map(p => careerCard(p)).join("");
 }
 
+function getJobRoles(path) {
+  const title = (path?.title || "").trim();
+  const seen = new Set();
+  const roles = [];
+
+  (path?.job_roles || []).forEach(role => {
+    const value = String(role || "").trim();
+    if (!value) return;
+    const key = value.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    roles.push(value);
+  });
+
+  if (title && !seen.has(title.toLowerCase())) {
+    roles.unshift(title);
+  }
+
+  return roles;
+}
+
 function careerCard(p) {
   const icon   = p.icon_emoji || FIELD_ICONS[p.field] || "🌟";
+  const roles  = getJobRoles(p);
+  const rolePreview = roles.slice(0, 3);
+  const extraRoles = roles.length - rolePreview.length;
   const skills = (p.required_skills || []).slice(0, 4);
   const extra  = (p.required_skills || []).length - 4;
   return `
@@ -51,6 +75,13 @@ function careerCard(p) {
       </div>
     </div>
     <p class="career-desc">${esc((p.description || "").slice(0,110))}…</p>
+    <div class="career-role-strip">
+      <div class="career-role-label">Popular Job Roles</div>
+      <div class="skill-chips">
+        ${rolePreview.map(role => `<span class="skill-chip active">${esc(role)}</span>`).join("")}
+        ${extraRoles > 0 ? `<span class="skill-chip muted">+${extraRoles} more</span>` : ""}
+      </div>
+    </div>
     <div class="career-stats-grid">
       <div class="career-stat-box">
         <div class="cstat-label">💰 India Salary</div>
@@ -88,6 +119,7 @@ async function openCareerDetail(id) {
   try {
     const { career_path: p } = await Career.getPath(id);
     const icon = p.icon_emoji || FIELD_ICONS[p.field] || "🌟";
+    const roles = getJobRoles(p);
     body.innerHTML = `
       <div class="career-detail-hero">
         <div class="career-detail-icon">${icon}</div>
@@ -128,10 +160,10 @@ async function openCareerDetail(id) {
         <div class="detail-section-label">🏢 Top Companies</div>
         <div class="skill-chips">${p.top_companies.map(c=>`<span class="skill-chip">${esc(c)}</span>`).join("")}</div>
       </div>` : ""}
-      ${(p.job_roles||[]).length ? `
+      ${roles.length ? `
       <div class="detail-section">
         <div class="detail-section-label">👔 Job Roles</div>
-        <div class="skill-chips">${p.job_roles.map(r=>`<span class="skill-chip active">${esc(r)}</span>`).join("")}</div>
+        <div class="skill-chips">${roles.map(r=>`<span class="skill-chip active">${esc(r)}</span>`).join("")}</div>
       </div>` : ""}
       <div class="detail-actions">
         ${Auth.isLoggedIn() ? `

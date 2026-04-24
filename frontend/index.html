@@ -163,6 +163,53 @@
       .stats-strip-grid { grid-template-columns: repeat(2,1fr); }
     }
   </style>
+  <style>
+    .landing-bg {
+      background:
+        radial-gradient(circle at top, #1e293b 0%, #0f172a 48%),
+        linear-gradient(180deg, #111827 0%, #0f172a 100%);
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 7vw, 5.8rem);
+    }
+
+    .hero-subtitle {
+      font-size: 1.08rem;
+      max-width: 540px;
+    }
+
+    .feature-pill,
+    .auth-card,
+    .feature-card,
+    .cta-banner {
+      backdrop-filter: blur(16px);
+    }
+
+    .auth-card,
+    .cta-banner {
+      background: var(--grad-surface);
+      border-radius: 32px;
+      box-shadow: var(--shadow-lg), var(--glow-indigo);
+    }
+
+    .feature-card {
+      background: var(--grad-surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .feature-card:hover {
+      box-shadow: var(--shadow-lg), var(--glow-indigo);
+      transform: translateY(-8px);
+    }
+
+    .stats-strip {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
+    }
+  </style>
 </head>
 <body>
   <div class="landing-bg">

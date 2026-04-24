@@ -37,6 +37,42 @@
     .skill-chips { display: flex; flex-wrap: wrap; gap: 6px; }
     .skill-chip  { padding: 3px 12px; border-radius: var(--r-full); background: var(--surface-2); border: 1px solid var(--border); font-size: 0.76rem; color: var(--text-2); }
   </style>
+  <style>
+    .roadmap-layout { padding-top: 8px; }
+
+    .roadmap-hero {
+      background: var(--grad-surface);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(16px);
+    }
+
+    .roadmap-hero h2 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+    }
+
+    .roadmap-card {
+      box-shadow: var(--shadow-md);
+    }
+
+    .milestone-row {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 22px;
+      backdrop-filter: blur(12px);
+    }
+
+    .milestone-row:hover {
+      border-color: rgba(79, 70, 229, 0.28);
+      box-shadow: var(--glow-indigo);
+      transform: translateY(-2px);
+    }
+
+    .skill-chip {
+      background: rgba(255, 255, 255, 0.05);
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">

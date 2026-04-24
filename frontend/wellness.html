@@ -63,6 +63,48 @@
 
     @media (max-width: 900px) { .wellness-layout { grid-template-columns: 1fr; padding: 24px 20px; } }
   </style>
+  <style>
+    .wellness-layout { padding-top: 8px; }
+
+    .burnout-card,
+    .mood-form-card,
+    .mood-chart-card {
+      background: var(--grad-surface);
+      border-radius: 28px;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(16px);
+    }
+
+    .burnout-dial {
+      background: radial-gradient(circle at top, rgba(79, 70, 229, 0.16), rgba(255, 255, 255, 0.04));
+      box-shadow: var(--glow-indigo);
+    }
+
+    .mood-emoji-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+    }
+
+    .mood-emoji-btn.selected {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.18), rgba(6, 182, 212, 0.14));
+      box-shadow: var(--glow-indigo);
+    }
+
+    .tag-chip,
+    .mood-entry-card {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tag-chip.active {
+      background: var(--grad-primary);
+      color: #fff;
+      box-shadow: var(--glow-indigo);
+    }
+
+    .mood-bar-track {
+      background: rgba(255, 255, 255, 0.06);
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">

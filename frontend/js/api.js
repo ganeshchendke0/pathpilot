@@ -53,8 +53,21 @@ async function _call(endpoint, options = {}) {
   if (options.body && typeof options.body === "object") {
     cfg.body = JSON.stringify(options.body);
   }
-  const res  = await fetch(`${API}${endpoint}`, cfg);
-  const data = await res.json();
+  let res;
+  try {
+    res = await fetch(`${API}${endpoint}`, cfg);
+  } catch {
+    throw new Error("Cannot reach backend server. Ensure backend is running on http://127.0.0.1:5000.");
+  }
+
+  const raw = await res.text();
+  let data = {};
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    data = { error: raw || `HTTP ${res.status}` };
+  }
+
   if (!res.ok) {
     if (res.status === 401 || res.status === 403) {
       _clearStoredSession();

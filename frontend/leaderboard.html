@@ -47,6 +47,53 @@
     .board-score { text-align: right; }
     .board-score .fw-700 { font-family: var(--font-display); font-size: 1.1rem; }
   </style>
+  <style>
+    .lb-layout { padding-top: 8px; }
+
+    .lb-hero {
+      background: var(--grad-surface);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(16px);
+    }
+
+    .lb-hero h2 {
+      font-size: clamp(2rem, 5vw, 3.4rem);
+    }
+
+    .my-rank-banner {
+      border-radius: 28px;
+      box-shadow: var(--shadow-md), var(--glow-indigo);
+      backdrop-filter: blur(16px);
+    }
+
+    .board-tabs {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .board-tab-btn.active {
+      background: var(--grad-primary);
+      color: #fff;
+      box-shadow: var(--glow-indigo);
+    }
+
+    .board-row {
+      background: var(--grad-surface);
+      border-radius: 22px;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(14px);
+    }
+
+    .board-row:hover {
+      transform: translateX(6px) translateY(-2px);
+      box-shadow: var(--shadow-md), var(--glow-indigo);
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -86,10 +133,10 @@
         <button class="board-tab-btn"        data-panel="alltime-board-wrap">⚡ All Time XP</button>
       </div>
 
-      <div id="weekly-board-wrap">
+      <div id="weekly-board-wrap" class="board-panel">
         <div id="weekly-board"><p class="text-muted text-small">Loading…</p></div>
       </div>
-      <div id="alltime-board-wrap" style="display:none">
+      <div id="alltime-board-wrap" class="board-panel" style="display:none">
         <div id="alltime-board"><p class="text-muted text-small">Loading…</p></div>
       </div>
     </div>

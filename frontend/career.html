@@ -57,6 +57,20 @@
     }
     .career-card-info .career-title { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
     .career-desc { font-size: 0.85rem; color: var(--text-2); line-height: 1.55; }
+    .career-role-strip {
+      background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(34,211,238,0.04));
+      border: 1px solid rgba(99,102,241,0.14);
+      border-radius: var(--r-md);
+      padding: 12px 14px;
+    }
+    .career-role-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #a5b4fc;
+      margin-bottom: 8px;
+    }
 
     .career-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .career-stat-box   { background: var(--surface-2); border-radius: var(--r-sm); padding: 10px 12px; }
@@ -115,6 +129,99 @@
 
     @media (max-width: 640px) { .career-grid { grid-template-columns: 1fr; } }
   </style>
+  <style>
+    .career-hero {
+      padding: 24px 0 36px;
+    }
+
+    .career-hero h2 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+    }
+
+    .search-wrap {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 6px;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(14px);
+    }
+
+    .search-input {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .filter-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .filter-chip.active {
+      background: var(--grad-primary);
+      color: #fff;
+      box-shadow: var(--glow-indigo);
+    }
+
+    .quiz-cta {
+      border-radius: 28px;
+      box-shadow: var(--shadow-md), var(--glow-indigo);
+      backdrop-filter: blur(16px);
+    }
+
+    .career-card {
+      background: var(--grad-surface);
+      border-radius: 28px;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(14px);
+      transform-style: preserve-3d;
+    }
+
+    .career-card:hover {
+      transform: translateY(-8px) rotateX(2deg) rotateY(-2deg);
+      box-shadow: var(--shadow-lg), var(--glow-indigo);
+    }
+
+    .career-card::before {
+      content: 'Trending';
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.9), rgba(6, 182, 212, 0.9));
+      box-shadow: var(--glow-indigo);
+    }
+
+    .career-icon-wrap,
+    .career-role-strip,
+    .career-stat-box,
+    .skill-gap-box {
+      backdrop-filter: blur(12px);
+    }
+
+    .career-stat-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+
+    .skill-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+    }
+
+    .modal[style*="max-width:640px"] {
+      max-width: 720px !important;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -135,14 +242,14 @@
       <div class="career-hero">
         <span class="badge badge-indigo">🧭 Career Discovery</span>
         <h2 style="margin-top:14px">Find your <span class="grad-text">ideal career</span></h2>
-        <p>Explore paths, compare salaries, identify skill gaps, and build a roadmap — all in one place.</p>
+        <p>Explore paths, compare salaries, identify skill gaps, and search IT job titles all in one place.</p>
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
-          <input id="career-search" type="text" class="form-input search-input" placeholder="Search careers, skills, fields…"/>
+          <input id="career-search" type="text" class="form-input search-input" placeholder="Search careers, IT roles, skills, fields…"/>
         </div>
         <div class="filter-row">
           <button class="filter-chip active" data-field="">All</button>
-          <button class="filter-chip" data-field="Technology">💻 Tech</button>
+          <button class="filter-chip" data-field="Technology">💻 Tech / IT</button>
           <button class="filter-chip" data-field="Design">🎨 Design</button>
           <button class="filter-chip" data-field="Business">📊 Business</button>
           <button class="filter-chip" data-field="Finance">💹 Finance</button>
