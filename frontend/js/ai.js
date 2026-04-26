@@ -27,7 +27,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!requireAuth()) return;
   document.getElementById("logout-btn")?.addEventListener("click", () => Auth.logout());
   document.getElementById("chat-input")?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendMessage();
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
   });
 });
 

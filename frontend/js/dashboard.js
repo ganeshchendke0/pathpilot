@@ -101,7 +101,10 @@ async function loadWeeklyReport() {
     setText("report-goals", report.goals_completed || 0);
     setText("report-mood", report.avg_mood ? `${report.avg_mood}/5` : "-");
     setText("report-streak", `${report.streak_days || 0} days`);
-  } catch {}
+  } catch (err) {
+    const summaryEl = document.getElementById("weekly-summary");
+    if (summaryEl) summaryEl.textContent = err.message || "Unable to load weekly summary right now.";
+  }
 }
 
 async function loadGoals() {
@@ -122,7 +125,7 @@ async function loadGoals() {
 
     grid.innerHTML = goals.map((goal) => goalCard(goal)).join("");
   } catch (err) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p class="empty-sub">${err.message}</p></div>`;
+    grid.innerHTML = `<div style="grid-column:1/-1">${getErrorMarkup(err.message)}</div>`;
   }
 }
 
@@ -184,7 +187,10 @@ async function loadNotifications() {
         <div class="notif-msg text-small text-muted">${esc(item.message)}</div>
         <div class="notif-time text-small" style="color:var(--text-3)">${timeAgo(item.created_at)}</div>
       </div>`).join("");
-  } catch {}
+  } catch (err) {
+    const panel = document.getElementById("notif-panel");
+    if (panel) panel.innerHTML = `<div class="notif-item"><div class="notif-msg text-small text-muted">${esc(err.message || "Unable to load notifications.")}</div></div>`;
+  }
 }
 
 async function loadRecentFocus() {
@@ -206,7 +212,10 @@ async function loadRecentFocus() {
         </div>
         <div class="session-dur">${session.duration_min} min</div>
       </div>`).join("");
-  } catch {}
+  } catch (err) {
+    const list = document.getElementById("recent-sessions");
+    if (list) list.innerHTML = `<p class="text-small text-muted">${esc(err.message || "Unable to load recent sessions.")}</p>`;
+  }
 }
 
 let editingId = null;
