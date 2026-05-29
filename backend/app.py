@@ -30,6 +30,13 @@ for bp in [auth_bp, goals_bp, career_bp, focus_bp,
            wellness_bp, lb_bp, notif_bp, ai_bp, roadmap_bp]:
     app.register_blueprint(bp)
 
+@app.route("/", methods=["GET"])
+def index():
+    return jsonify({
+        "message": "PathPilot backend is running.",
+        "info": "Use /api/health or run the frontend from frontend/index.html on port 5500."
+    }), 200
+
 @app.route("/api/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok", "version": "2.0", "app": "PathPilot"}), 200
