@@ -1,4 +1,4 @@
-# PathPilot
+﻿# PathPilot
 
 PathPilot is a full-stack student productivity and career guidance platform built to help students stay focused, plan goals, explore careers, manage wellness, and use AI tools from one dashboard.
 
@@ -93,7 +93,7 @@ cd PathPilot
 ### 2. Create the backend environment file
 
 Create `backend/.env`:
-
+  
 ```env
 DB_HOST=localhost
 DB_PORT=5432
