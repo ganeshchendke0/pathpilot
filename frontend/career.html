@@ -8,7 +8,32 @@
   <style>
     .career-hero { padding: 48px 0 32px; text-align: center; }
     .career-hero h2 { margin-bottom: 10px; }
-    .career-hero p  { max-width: 500px; margin: 0 auto 28px; }
+    .career-hero p  { max-width: 560px; margin: 0 auto 28px; }
+    .career-spotlight {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 0 auto 24px;
+      max-width: 760px;
+    }
+    .career-spotlight-card {
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .career-spotlight-card strong {
+      display: block;
+      color: var(--text-1);
+      font-size: 0.92rem;
+      margin-bottom: 4px;
+    }
+    .career-spotlight-card span {
+      color: var(--text-2);
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
 
     .search-wrap  { position: relative; max-width: 520px; margin: 0 auto; }
     .search-icon  { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-3); }
@@ -134,6 +159,10 @@
       padding: 24px 0 36px;
     }
 
+    .career-spotlight {
+      grid-template-columns: 1fr;
+    }
+
     .career-hero h2 {
       font-size: clamp(2.2rem, 5vw, 3.8rem);
     }
@@ -242,8 +271,23 @@
       <div class="career-hero">
         <span class="badge badge-indigo">🧭 Career Discovery</span>
         <h2 style="margin-top:14px">Find your <span class="grad-text">ideal career</span></h2>
-        <p>Explore paths, compare salaries, identify skill gaps, and search IT job titles all in one place.</p>
+        <p>Explore paths, compare roles, identify skill gaps, and search meaningful opportunities with a clearer view of your next move.</p>
+        <div class="career-spotlight">
+          <div class="career-spotlight-card">
+            <strong>Career match</strong>
+            <span>Browse options that align with your strengths and interests.</span>
+          </div>
+          <div class="career-spotlight-card">
+            <strong>Skill roadmap</strong>
+            <span>See what skills matter most and where to focus next.</span>
+          </div>
+          <div class="career-spotlight-card">
+            <strong>Practical next step</strong>
+            <span>Turn curiosity into a plan you can start building today.</span>
+          </div>
+        </div>
         <div class="search-wrap">
+          <label for="career-search" style="position:absolute;left:-9999px;">Search career paths</label>
           <span class="search-icon">🔍</span>
           <input id="career-search" type="text" class="form-input search-input" placeholder="Search careers, IT roles, skills, fields…"/>
         </div>

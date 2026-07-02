@@ -139,6 +139,64 @@
     .feature-card h4 { margin-bottom: 8px; }
     .feature-card p  { font-size: 0.87rem; line-height: 1.65; }
 
+    .hero-highlights {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+      animation: fadeUp 0.7s var(--ease-out) 0.4s both;
+    }
+    .hero-highlight {
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .hero-highlight strong {
+      display: block;
+      color: var(--text-1);
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    .hero-highlight span {
+      color: var(--text-2);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    .content-showcase {
+      padding: 24px 0 10px;
+    }
+    .section-intro {
+      text-align: center;
+      max-width: 740px;
+      margin: 0 auto 24px;
+    }
+    .section-intro h3 {
+      margin-bottom: 8px;
+      font-size: clamp(1.4rem, 2.6vw, 2rem);
+    }
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .showcase-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+    }
+    .showcase-card h4 {
+      margin-bottom: 8px;
+      font-size: 1.02rem;
+    }
+    .showcase-card p {
+      font-size: 0.9rem;
+    }
+
     .stats-strip { padding: 60px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
     .stats-strip-grid { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; gap: 20px; }
     .strip-stat-num { font-family: var(--font-display); font-size: 2.8rem; font-weight: 700; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -161,6 +219,7 @@
       .hero-section { grid-template-columns: 1fr; padding: 100px 0 60px; gap: 40px; }
       .features-grid { grid-template-columns: 1fr; }
       .stats-strip-grid { grid-template-columns: repeat(2,1fr); }
+      .hero-highlights, .showcase-grid { grid-template-columns: 1fr; }
     }
   </style>
   <style>
@@ -244,12 +303,25 @@
             <span class="grad-text">Find your path.</span>
           </h1>
           <p class="hero-subtitle">
-            PathPilot combines goal tracking, career discovery, focus sessions,
-            and wellness — so you can navigate student life with clarity and confidence.
+            Turn study stress into momentum with a calmer way to plan your semester, build focus habits, and discover the career path that fits you best.
           </p>
           <div class="hero-cta">
             <a href="#auth" class="btn btn-primary btn-xl">Start Free →</a>
             <a href="career.html" class="btn btn-ghost btn-lg">Explore Careers</a>
+          </div>
+          <div class="hero-highlights">
+            <div class="hero-highlight">
+              <strong>Clear weekly rhythm</strong>
+              <span>Track goals, sessions, and progress in one place.</span>
+            </div>
+            <div class="hero-highlight">
+              <strong>Career clarity</strong>
+              <span>Match your strengths to practical next steps.</span>
+            </div>
+            <div class="hero-highlight">
+              <strong>Balanced growth</strong>
+              <span>Support study focus and well-being together.</span>
+            </div>
           </div>
           <div class="feature-pills">
             <div class="feature-pill">🎯 Goal Tracker</div>
@@ -331,6 +403,28 @@
           <div><div class="strip-stat-num">∞</div><div class="strip-stat-label">Goals You Can Set</div></div>
         </div>
       </div>
+
+      <section class="content-showcase" aria-label="Why PathPilot stands out">
+        <div class="section-intro">
+          <div class="features-label">A better student routine</div>
+          <h3>Everything you need to move forward with confidence</h3>
+          <p>PathPilot brings planning, focus, wellness, and career discovery together so your next step feels clear instead of overwhelming.</p>
+        </div>
+        <div class="showcase-grid">
+          <article class="showcase-card">
+            <h4>Plan smarter</h4>
+            <p>Create goals, organize milestones, and keep your growth visible without the guesswork.</p>
+          </article>
+          <article class="showcase-card">
+            <h4>Stay focused</h4>
+            <p>Use structured sessions and streaks to build calm, repeatable study habits.</p>
+          </article>
+          <article class="showcase-card">
+            <h4>Grow with purpose</h4>
+            <p>Explore career paths that fit your interests and turn learning into real momentum.</p>
+          </article>
+        </div>
+      </section>
 
       <section class="features-section" id="features">
         <div class="features-label">Everything You Need</div>
